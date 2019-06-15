@@ -41,7 +41,8 @@ For example, we need 7 hours, but lessons from 9:00 to 12:00. In this case sched
 2. 9:00 - 12:00
 3. 9:00 - 10:00
 
-Finally, application should obtain information from Internet about public holidays, and excluda that days from schedule.
+Finally, application should obtain information from Internet about public holidays, and exclude that days from schedule.
 
 Application should be developed as Maven project.
+Remember about clean code rules and Unit Tests.
 All work should be done in separate git branch.
