@@ -22,11 +22,11 @@ Application should get the next input parameters:
 * -f file_name
 * -h (show application help)
 
-Attached file **example1.xlsx** supposed to be generated after the next command:
-java -jar application_name.jar -d mon_thu -b 17:00 -e 18:30 -n 21 -s 30.05.2019 -f example1
+Attached file **example1.xlsx** supposed to be generated after the next command:  
+java -jar application_name.jar -d monday_thursday -b 17:00 -e 18:30 -n 21 -s 30.05.2019 -f example1
 
-Attached file **example2.xlsx** supposed to be generated after the next command:
-java -jar application_name.jar -d sat -b 9:00 -e 12:00 -n 39 -s 06.04.2019 -f example2
+Attached file **example2.xlsx** supposed to be generated after the next command:  
+java -jar application_name.jar -d saturday -b 9:00 -e 12:00 -n 39 -s 06.04.2019 -f example2
 
 -h key should show application usage message (input parameters with possible values)
 
@@ -43,6 +43,6 @@ For example, we need 7 hours, but lessons from 9:00 to 12:00. In this case sched
 
 Finally, application should obtain information from Internet about public holidays, and exclude that days from schedule.
 
-Application should be developed as Maven project.
-Remember about clean code rules and Unit Tests.
-All work should be done in separate git branch.
+Application should be developed as Maven project.  
+Remember about clean code rules and Unit Tests.  
+All work should be done in separate git branch.  
