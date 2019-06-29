@@ -7,7 +7,7 @@ import java.util.Collection;
 
 public class EnteredParameters {
 
-    private int hoursNumber;
+    private Integer hoursNumber;
 
     private LocalDate startDate;
 
@@ -21,11 +21,11 @@ public class EnteredParameters {
 
     private String fileName;
 
-    public int getHoursNumber() {
+    public Integer getHoursNumber() {
         return hoursNumber;
     }
 
-    public void setHoursNumber(int hoursNumber) {
+    public void setHoursNumber(Integer hoursNumber) {
         this.hoursNumber = hoursNumber;
     }
 
