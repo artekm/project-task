@@ -24,3 +24,10 @@ hs_err_pid*
 
 .idea/
 target/
+
+.classpath
+.project
+.settings/
+
+*.xls
+*.xlsx
