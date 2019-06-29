@@ -47,16 +47,16 @@ public class ParametersValidatorTest {
     }
 
     @Test
-    public void validate_negativeHoursNumber_throwsIncorrectParametersExeption() throws IncorrectParametersException {
+    public void validate_incorrectHoursNumber_throwsIncorrectParametersExeption() throws IncorrectParametersException {
         EnteredParameters parameters = new EnteredParameters();
         parameters.setBeginTime(LocalTime.of(10, 0));
         parameters.setEndTime(LocalTime.of(11, 0));
         parameters.setStartDate(LocalDate.of(2010, 10, 10));
-        parameters.setHoursNumber(-30);
+        parameters.setHoursNumber(0);
         parameters.setLessonDays(Arrays.asList(MONDAY, TUESDAY));
 
         expectedException.expect(IncorrectParametersException.class);
-        expectedException.expectMessage("Incorrect hours number -- can't be negative");
+        expectedException.expectMessage("Incorrect hours number -- can't be negative or zero");
 
         validator.validate(parameters);
     }

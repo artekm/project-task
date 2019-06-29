@@ -41,7 +41,7 @@ public class ParametersReader {
 
         EnteredParameters enteredParameters = new EnteredParameters();
         if (cmd.hasOption("n")) {
-            int hours = Integer.parseInt(cmd.getOptionValue("n"));
+            Integer hours = Integer.valueOf(cmd.getOptionValue("n"));
             enteredParameters.setHoursNumber(hours);
         }
         if (cmd.hasOption("s")) {
