@@ -17,6 +17,10 @@ public class EnteredParameters {
 
     private Collection<DayOfWeek> lessonDays;
 
+    private boolean showHelp;
+
+    private String fileName;
+
     public int getHoursNumber() {
         return hoursNumber;
     }
@@ -55,5 +59,21 @@ public class EnteredParameters {
 
     public void setLessonDays(Collection<DayOfWeek> lessonDays) {
         this.lessonDays = lessonDays;
+    }
+
+    public boolean isShowHelp() {
+        return showHelp;
+    }
+
+    public void setShowHelp(boolean showHelp) {
+        this.showHelp = showHelp;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }

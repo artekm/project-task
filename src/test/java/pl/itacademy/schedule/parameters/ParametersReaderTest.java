@@ -25,8 +25,6 @@ public class ParametersReaderTest {
     @Before
     public void setUp() {
         parametersReader = new ParametersReader();
-        //args=new String[]{"-d","mon_tue","-b","10:00","-e","12:00","-n","20","-s","10.05.2019"};
-
     }
 
     @Test
@@ -96,4 +94,23 @@ public class ParametersReaderTest {
 
         assertThat(result.getLessonDays(), containsInAnyOrder(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.FRIDAY));
     }
+
+    @Test
+    public void parseArguments_containsHelpParameter_returnsEnteredParametersWithShowHelp() throws IncorrectParametersException, ParseException {
+        String[] args = new String[]{"-h"};
+        EnteredParameters result = parametersReader.parseArguments(args);
+
+        assertThat(result.isShowHelp(), equalTo(true));
+    }
+
+    @Test
+    public void parseArguments_containsFileNameParameter_returnsEnteredParametersWithFileName() throws IncorrectParametersException, ParseException {
+        String fileName = "pliczek.xls";
+        String[] args = new String[]{"-f", fileName};
+        EnteredParameters result = parametersReader.parseArguments(args);
+
+        assertThat(result.getFileName(), equalTo(fileName));
+    }
+
+
 }

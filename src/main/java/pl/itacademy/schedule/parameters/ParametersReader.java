@@ -14,6 +14,18 @@ import java.util.stream.Collectors;
 
 public class ParametersReader {
 
+    private static final Options OPTIONS = new Options();
+
+    static {
+        OPTIONS.addOption("n", true, "Number of hours");
+        OPTIONS.addOption("s", true, "Start date");
+        OPTIONS.addOption("b", true, "Begin time");
+        OPTIONS.addOption("e", true, "End time");
+        OPTIONS.addOption("d", true, "Lesson days");
+        OPTIONS.addOption("f", true, "Generated file name");
+        OPTIONS.addOption("h", "Show help");
+    }
+
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.uuuu");
 
     public EnteredParameters parseArguments(String[] args) throws IncorrectParametersException, ParseException {
@@ -24,15 +36,8 @@ public class ParametersReader {
             throw new IncorrectParametersException("Arguments are empty");
         }
 
-        Options options = new Options();
-        options.addOption("n", true, "Number of hours");
-        options.addOption("s", true, "Start date");
-        options.addOption("b", true, "Begin time");
-        options.addOption("e", true, "End time");
-        options.addOption("d", true, "Lesson days");
-
         CommandLineParser parser = new DefaultParser();
-        CommandLine cmd = parser.parse(options, args);
+        CommandLine cmd = parser.parse(OPTIONS, args);
 
         EnteredParameters enteredParameters = new EnteredParameters();
         if (cmd.hasOption("n")) {
@@ -52,6 +57,10 @@ public class ParametersReader {
             enteredParameters.setEndTime(endTime);
         }
 
+        if (cmd.hasOption("f")){
+            enteredParameters.setFileName(cmd.getOptionValue("f"));
+        }
+
         if (cmd.hasOption("d")) {
             String[] days = cmd.getOptionValue("d").toUpperCase().split("_");
 
@@ -62,6 +71,15 @@ public class ParametersReader {
             enteredParameters.setLessonDays(daysOfWeek);
         }
 
+        enteredParameters.setShowHelp(cmd.hasOption("h"));
+
         return enteredParameters;
+    }
+
+    public static class UsagePrinter {
+        public void printHelp() {
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("ScheduleGenerator args", OPTIONS, true);
+        }
     }
 }
