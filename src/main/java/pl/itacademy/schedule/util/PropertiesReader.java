@@ -1,4 +1,4 @@
-package pl.itacademy.util;
+package pl.itacademy.schedule.util;
 
 import java.io.IOException;
 import java.net.URI;

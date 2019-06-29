@@ -1,7 +1,7 @@
-package pl.itacademy.parameters;
+package pl.itacademy.schedule.parameters;
 
 import org.apache.commons.cli.*;
-import pl.itacademy.exception.IncorrectParametersException;
+import pl.itacademy.schedule.exception.IncorrectParametersException;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

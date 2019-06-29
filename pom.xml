@@ -75,7 +75,7 @@
                         <configuration>
                             <archive>
                                 <manifest>
-                                    <mainClass>pl.itacademy.ScheduleGenerator</mainClass>
+                                    <mainClass>pl.itacademy.schedule.ScheduleGenerator</mainClass>
                                 </manifest>
                             </archive>
                             <descriptorRefs>

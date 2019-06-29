@@ -1,11 +1,11 @@
-package pl.itacademy.parameters;
+package pl.itacademy.schedule.parameters;
 
 import org.apache.commons.cli.ParseException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import pl.itacademy.exception.IncorrectParametersException;
+import pl.itacademy.schedule.exception.IncorrectParametersException;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;

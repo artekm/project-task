@@ -1,4 +1,4 @@
-package pl.itacademy;
+package pl.itacademy.schedule;
 
 public class ScheduleGenerator {
 

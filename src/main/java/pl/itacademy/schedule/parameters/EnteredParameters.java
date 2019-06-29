@@ -1,4 +1,4 @@
-package pl.itacademy.parameters;
+package pl.itacademy.schedule.parameters;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
