@@ -18,18 +18,16 @@ public class ScheduleGenerator {
 		long dailyMinutes = Duration.between(parameters.getBeginTime(), parameters.getEndTime()).toMinutes();
 		long totalMinutes = parameters.getHoursNumber() * 60;
 		LocalDate startDate = findNextDate(parameters.getStartDate(), parameters.getLessonDays());
-		while (totalMinutes > 0) {
-			if (totalMinutes >= dailyMinutes) {
-				lessons.add(new Lesson(startDate, parameters.getBeginTime(), parameters.getEndTime()));
-			} else {
-				lessons.add(new Lesson(startDate, parameters.getBeginTime(),
-						parameters.getBeginTime().plusMinutes(totalMinutes)));
-				schedule.setLastDayShorter(true);
-			}
+		while (totalMinutes >= dailyMinutes) {
+			lessons.add(new Lesson(startDate, parameters.getBeginTime(), parameters.getEndTime()));
 			totalMinutes -= dailyMinutes;
 			startDate = findNextDate(startDate.plusDays(1), parameters.getLessonDays());
 		}
-
+		if (totalMinutes > 0) {
+			lessons.add(new Lesson(startDate, parameters.getBeginTime(),
+					parameters.getBeginTime().plusMinutes(totalMinutes)));
+			schedule.setLastDayShorter(true);
+		}
 		schedule.setLessons(lessons);
 		schedule.setNumberOfHours(parameters.getHoursNumber());
 		schedule.setNumberOfDays(lessons.size());
