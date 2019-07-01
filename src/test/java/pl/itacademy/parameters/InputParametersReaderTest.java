@@ -5,6 +5,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -45,4 +47,51 @@ public class InputParametersReaderTest {
 
         assertThat(inputParameters.getHoursNumber(), equalTo(5));
     }
+
+    @Test
+    public void readParameters_readBeginTime_returnsBeginTime() throws ParseException {
+        String[] args = new String[]{"-b", "17:00"};
+
+        InputParameters inputParameters = inputParametersReader.readParameters(args);
+
+        assertThat(inputParameters.getBeginTime(), equalTo(LocalTime.of(17, 0)));
+    }
+
+    @Test
+    public void readParameters_readEndTime_returnsEndTime() throws ParseException {
+        String[] args = new String[]{"-e", "18:30"};
+
+        InputParameters inputParameters = inputParametersReader.readParameters(args);
+
+        assertThat(inputParameters.getEndTime(), equalTo(LocalTime.of(18, 30)));
+    }
+
+    @Test
+    public void readParameters_readStartDate_returnsStartDate() throws ParseException {
+        String[] args = new String[]{"-s", "01.07.2019"};
+
+        InputParameters inputParameters = inputParametersReader.readParameters(args);
+
+        assertThat(inputParameters.getStartDate(), equalTo(LocalDate.of(2019, 7, 1)));
+    }
+
+    @Test
+    public void readParameters_readFileName_returnsFileName() throws ParseException {
+        String fileName = "java";
+        String[] args = new String[]{"-f", fileName};
+
+        InputParameters inputParameters = inputParametersReader.readParameters(args);
+
+        assertThat(inputParameters.getFileName(), equalTo(fileName));
+    }
+
+    @Test
+    public void readParameters_readHelp_returnsHelpFlag() throws ParseException {
+        String[] args = new String[]{"-h"};
+
+        InputParameters inputParameters = inputParametersReader.readParameters(args);
+
+        assertThat(inputParameters.isShowHelp(), equalTo(true));
+    }
+
 }
