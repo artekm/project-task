@@ -40,7 +40,7 @@ public class ScheduleGeneratorTest {
     }
 
     @Test
-    public void generate_generatesScheduleFromParametersWithWarning() {
+    public void generate_requiredHoursCantBeFitIntoDailySchedule_createsLastDayShorter_addsFlagForShorterLastDay() {
         EnteredParameters parameters = new EnteredParameters();
         parameters.setBeginTime(LocalTime.of(9, 0));
         parameters.setEndTime(LocalTime.of(12, 0));

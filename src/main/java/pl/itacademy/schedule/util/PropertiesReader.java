@@ -10,8 +10,6 @@ public class PropertiesReader {
 	private static final String PROPERTIES_FILE_NAME = "application.properties";
 	private static final String SEARCH_LOCATION_A = "./config/";
 	private static final String SEARCH_LOCATION_B = "./";
-	private static final String DEFAULT_EXCEL_NAME = "default";
-	private static final String DEFAULT_EXCEL_EXTENSION = "xls";
 
 	private Properties properties;
 	private static final PropertiesReader INSTANCE = new PropertiesReader();
@@ -34,8 +32,6 @@ public class PropertiesReader {
 				try {
 					readDefaultsFromJAR();
 				} catch (IOException e3) {
-					properties.setProperty("excel.defaultName", DEFAULT_EXCEL_NAME);
-					properties.setProperty("excel.defaultExtension", DEFAULT_EXCEL_EXTENSION);
 				}
 			}
 		}

@@ -1,11 +1,9 @@
 package pl.itacademy.schedule.parameters;
 
-import static pl.itacademy.schedule.ScheduleGeneratorApp.DATE_FORMATTER;
-import static pl.itacademy.schedule.ScheduleGeneratorApp.TIME_FORMATTER;
-
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
@@ -19,6 +17,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import pl.itacademy.schedule.exception.IncorrectParametersException;
+import pl.itacademy.schedule.util.PropertiesReader;
 
 public class ParametersReader {
 
@@ -29,7 +28,7 @@ public class ParametersReader {
 		OPTIONS.addOption("s", true, "Start date");
 		OPTIONS.addOption("b", true, "Begin time");
 		OPTIONS.addOption("e", true, "End time");
-		OPTIONS.addOption("d", true, "Lesson days");
+		OPTIONS.addOption("d", true, "Lesson days' names separated by underscore");
 		OPTIONS.addOption("f", true, "Generated file name");
 		OPTIONS.addOption("h", "Show help");
 	}
@@ -44,22 +43,26 @@ public class ParametersReader {
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine cmd = parser.parse(OPTIONS, args);
-
+		
+		PropertiesReader propertiesReader = PropertiesReader.getInstance();
+		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(propertiesReader.readProperty("dateFormat"));
+		DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern(propertiesReader.readProperty("timeFormat"));
+		
 		EnteredParameters enteredParameters = new EnteredParameters();
 		if (cmd.hasOption("n")) {
 			Integer hours = Integer.valueOf(cmd.getOptionValue("n"));
 			enteredParameters.setHoursNumber(hours);
 		}
 		if (cmd.hasOption("s")) {
-			LocalDate startDate = LocalDate.parse(cmd.getOptionValue("s"), DATE_FORMATTER);
+			LocalDate startDate = LocalDate.parse(cmd.getOptionValue("s"), dateFormatter);
 			enteredParameters.setStartDate(startDate);
 		}
 		if (cmd.hasOption("b")) {
-			LocalTime beginTime = LocalTime.parse(cmd.getOptionValue("b"), TIME_FORMATTER);
+			LocalTime beginTime = LocalTime.parse(cmd.getOptionValue("b"), timeFormatter);
 			enteredParameters.setBeginTime(beginTime);
 		}
 		if (cmd.hasOption("e")) {
-			LocalTime endTime = LocalTime.parse(cmd.getOptionValue("e"), TIME_FORMATTER);
+			LocalTime endTime = LocalTime.parse(cmd.getOptionValue("e"), timeFormatter);
 			enteredParameters.setEndTime(endTime);
 		}
 
@@ -85,7 +88,7 @@ public class ParametersReader {
 	public static class UsagePrinter {
 		public void printHelp() {
 			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("ScheduleGenerator args", OPTIONS, true);
+			formatter.printHelp("java -jar Scheduler.jar -d <daysOfWeek> -b <beginTime> -e <endTime> -s <startDate> -n <numberOfHours> [-f <fileName>] [-h]", OPTIONS);
 		}
 	}
 }
