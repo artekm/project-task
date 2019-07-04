@@ -8,7 +8,7 @@ import java.util.Collection;
 public class InputParameters {
     private Collection<DayOfWeek> lessonDays;
 
-    private int hoursNumber;
+    private Integer hoursNumber;
 
     private LocalTime beginTime;
 
@@ -60,11 +60,11 @@ public class InputParameters {
         this.beginTime = beginTime;
     }
 
-    public int getHoursNumber() {
+    public Integer getHoursNumber() {
         return hoursNumber;
     }
 
-    public void setHoursNumber(int hoursNumber) {
+    public void setHoursNumber(Integer hoursNumber) {
         this.hoursNumber = hoursNumber;
     }
 

@@ -5,7 +5,6 @@ import pl.itacademy.parameters.InputParameters;
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -15,17 +14,27 @@ public class ScheduleGenerator {
         long requiredTime = parameters.getHoursNumber() * 60;
         long lessonDuration = Duration.between(parameters.getBeginTime(), parameters.getEndTime()).toMinutes();
         Collection<Lesson> lessons = new ArrayList<>();
+
+        Schedule schedule = new Schedule(lessons, true);
+
+        Collection<DayOfWeek> lessonDaysOfWeek = parameters.getLessonDays();
+        LocalDate nextDay = getNextDay(parameters.getStartDate(), lessonDaysOfWeek);
         while (requiredTime > 0) {
-            LocalDate nextDay = getNextDay(parameters.getStartDate(), parameters.getLessonDays());
-            lessons.add(new Lesson(nextDay, parameters.getBeginTime(), parameters.getEndTime()));
+            if (requiredTime < lessonDuration) {
+                lessons.add(new Lesson(nextDay, parameters.getBeginTime(), parameters.getEndTime().minusMinutes(lessonDuration - requiredTime)));
+                schedule.setLessonsFitToSchedule(false);
+            } else {
+                lessons.add(new Lesson(nextDay, parameters.getBeginTime(), parameters.getEndTime()));
+            }
             requiredTime -= lessonDuration;
+            nextDay = getNextDay(nextDay.plusDays(1), lessonDaysOfWeek);
         }
-        return new Schedule(lessons, true);
+        return schedule;
     }
 
     private LocalDate getNextDay(LocalDate startDate, Collection<DayOfWeek> classesDays) {
         while (isNotRequiredDayOfWeek(classesDays, startDate)) {
-            startDate = startDate.plus(1, ChronoUnit.DAYS);
+            startDate = startDate.plusDays(1);
         }
         return startDate;
     }
