@@ -3,12 +3,8 @@ package pl.itacademy.schedule.generator;
 import pl.itacademy.schedule.holidays.HolidaysWebClient;
 import pl.itacademy.schedule.parameters.EnteredParameters;
 
-import java.time.DayOfWeek;
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.Collection;
+import java.time.*;
+import java.util.*;
 
 public class ScheduleGenerator {
 
@@ -22,17 +18,20 @@ public class ScheduleGenerator {
 
 		Collection<Lesson> lessons = new ArrayList<>();
 		Schedule schedule = new Schedule();
-
 		LocalTime beginTime = parameters.getBeginTime();
 		LocalTime endTime = parameters.getEndTime();
 		Collection<DayOfWeek> lessonDays = parameters.getLessonDays();
 		long dailyMinutes = Duration.between(beginTime, endTime).toMinutes();
 		long totalMinutes = parameters.getHoursNumber() * 60;
-		LocalDate startDate = findNextDate(parameters.getStartDate(), lessonDays);
+
+		Collection<LocalDate> publicHolidays = webClient.getHolidaysFromEnrico(parameters.getStartDate(),
+				parameters.getStartDate().plusYears(1));
+
+		LocalDate startDate = findNextDate(parameters.getStartDate(), lessonDays, publicHolidays);
 		while (totalMinutes >= dailyMinutes) {
 			lessons.add(new Lesson(startDate, beginTime, endTime));
 			totalMinutes -= dailyMinutes;
-			startDate = findNextDate(startDate.plusDays(1), lessonDays);
+			startDate = findNextDate(startDate.plusDays(1), lessonDays, publicHolidays);
 		}
 		if (totalMinutes > 0) {
 			lessons.add(new Lesson(startDate, beginTime, beginTime.plusMinutes(totalMinutes)));
@@ -44,8 +43,9 @@ public class ScheduleGenerator {
 		return schedule;
 	}
 
-	private LocalDate findNextDate(LocalDate startDate, Collection<DayOfWeek> lessonDays) {
-		while (notLessonsDayOfWeek(startDate, lessonDays)) {
+	private LocalDate findNextDate(LocalDate startDate, Collection<DayOfWeek> lessonDays,
+			Collection<LocalDate> publicHolidays) {
+		while (notLessonsDayOfWeek(startDate, lessonDays) || isPublicHoliday(startDate, publicHolidays)) {
 			startDate = startDate.plusDays(1);
 		}
 		return startDate;
@@ -53,5 +53,9 @@ public class ScheduleGenerator {
 
 	private boolean notLessonsDayOfWeek(LocalDate date, Collection<DayOfWeek> lessonDays) {
 		return !lessonDays.contains(date.getDayOfWeek());
+	}
+
+	private boolean isPublicHoliday(LocalDate date, Collection<LocalDate> publicHolidays) {
+		return publicHolidays.contains(date);
 	}
 }
