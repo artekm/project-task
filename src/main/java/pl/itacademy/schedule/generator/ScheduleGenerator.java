@@ -34,7 +34,7 @@ public class ScheduleGenerator {
 			totalMinutes -= dailyMinutes;
 			startDate = findNextDate(startDate.plusDays(1), lessonDays);
 		}
-		if (totalMinutes > 0) {
+		if (totalMinutes > 0) { 
 			lessons.add(new Lesson(startDate, beginTime, beginTime.plusMinutes(totalMinutes)));
 			schedule.setLastDayShorter(true);
 		}
