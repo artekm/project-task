@@ -67,8 +67,8 @@ public class ScheduleGeneratorTest {
     private final static class HolidaysWebClientMock extends HolidaysWebClient {
         @Override
         public List<LocalDate> getHolidays(int year) {
-            return Arrays.asList(LocalDate.of(year, 1, 1),
-                    LocalDate.of(year, 1, 6));
+            return Arrays.asList(LocalDate.of(2019, 1, 1),
+                    LocalDate.of(2019, 1, 6));
         }
     }
 
