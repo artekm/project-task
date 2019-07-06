@@ -1,15 +1,13 @@
 package pl.itacademy.schedule.util;
 
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertNotNull;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import org.junit.Before;
+import org.junit.Test;
 
 public class PropertiesReaderTest {
 	private static final String SEARCH_LOCATION_A = "./config/application.properties";
@@ -19,47 +17,48 @@ public class PropertiesReaderTest {
 
 	@Before
 	public void setUp() throws Exception {
-		storeApplicationPropertyFile(SEARCH_LOCATION_A);
-		storeApplicationPropertyFile(SEARCH_LOCATION_B);
 		reader = PropertiesReader.getInstance();
 	}
 
 	@Test
 	public void PropertyBox_readsDefaults_fromLocationA() throws Exception {
 		reader.readApplicationProperties();
-		assertEquals("schedule", reader.readProperty("excel.defaultName"));
-		assertEquals("H:mm", reader.readProperty("timeFormat"));
-		assertEquals("d.MM.uuuu", reader.readProperty("dateFormat"));
+		assertNotNull(reader.readProperty("excel.defaultName"));
+		assertNotNull(reader.readProperty("timeFormat"));
+		assertNotNull(reader.readProperty("dateFormat"));
 	}
 
 	@Test
 	public void PropertyBox_readsDefaults_fromLocationB() throws Exception {
-		deleteFile(SEARCH_LOCATION_A);
+		hideFile(SEARCH_LOCATION_A);
 		reader.readApplicationProperties();
-		assertEquals("schedule", reader.readProperty("excel.defaultName"));
-		assertEquals("H:mm", reader.readProperty("timeFormat"));
-		assertEquals("d.MM.uuuu", reader.readProperty("dateFormat"));
+		assertNotNull(reader.readProperty("excel.defaultName"));
+		assertNotNull(reader.readProperty("timeFormat"));
+		assertNotNull(reader.readProperty("dateFormat"));
+		showFile(SEARCH_LOCATION_A);
 	}
 
 	@Test
 	public void PropertyBox_readsDefaultExcelFile_fromJAR() throws Exception {
-		deleteFile(SEARCH_LOCATION_A);
-		deleteFile(SEARCH_LOCATION_B);
+		hideFile(SEARCH_LOCATION_A);
+		hideFile(SEARCH_LOCATION_B);
 		reader.readApplicationProperties();
-		assertEquals("scheduleJAR", reader.readProperty("excel.defaultName"));
-		assertEquals("H:mm", reader.readProperty("timeFormat"));
-		assertEquals("d.MM.uuuu", reader.readProperty("dateFormat"));
+		assertNotNull(reader.readProperty("excel.defaultName"));
+		assertNotNull(reader.readProperty("timeFormat"));
+		assertNotNull(reader.readProperty("dateFormat"));
+		showFile(SEARCH_LOCATION_A);
+		showFile(SEARCH_LOCATION_B);
 	}
 
-	private void storeApplicationPropertyFile(String location) throws Exception {
-		List<String> fileContent = Arrays.asList("excel.defaultName=schedule",
-				"timeFormat=H:mm", "dateFormat=d.MM.uuuu");
-		Path path = Paths.get(location);
-		Files.write(path, fileContent);
+	private void hideFile(String location) throws Exception {
+		Path pathOld = Paths.get(location).normalize().toAbsolutePath();
+		Path pathNew = Paths.get(location + ".hide").normalize().toAbsolutePath();
+		Files.move(pathOld, pathNew);
 	}
 
-	private void deleteFile(String location) throws Exception {
-		Path path = Paths.get(location);
-		Files.delete(path);
+	private void showFile(String location) throws Exception {
+		Path pathOld = Paths.get(location + ".hide").normalize().toAbsolutePath();
+		Path pathNew = Paths.get(location).normalize().toAbsolutePath();
+		Files.move(pathOld, pathNew);
 	}
 }

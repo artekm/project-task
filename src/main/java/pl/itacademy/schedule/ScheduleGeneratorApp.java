@@ -15,8 +15,11 @@ import pl.itacademy.schedule.util.PropertiesReader;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 public class ScheduleGeneratorApp {
+	public static final String WARNING_MESSAGE = "Warning: last lesson is shorter than the others\n";
 
 	public static void main(String[] args) {
 
@@ -32,36 +35,49 @@ public class ScheduleGeneratorApp {
 			}
 			ParametersValidator validator = new ParametersValidator();
 			validator.validate(enteredParameters);
-			
-			ScheduleGenerator scheduleGenerator = new ScheduleGenerator(webClient);
-			Schedule schedule = scheduleGenerator.generate(enteredParameters);
+		} catch (IncorrectParametersException | ParseException e) {
+			System.out.println(e.getMessage());
+			usagePrinter.printHelp();
+			return;
+		} catch (NumberFormatException e) {
+			System.out.println("Impossible to read number " + e.getMessage());
+			return;
+		}
 
-			String fileName;
-			if (enteredParameters.getFileName() == null) {
-				PropertiesReader propertiesReader = PropertiesReader.getInstance();
-				fileName = propertiesReader.readProperty("excel.defaultName") + ".xlsx";
-			} else {
-				fileName = enteredParameters.getFileName();
-				if (!fileName.endsWith(".xlsx"))
-					fileName = fileName + ".xlsx";
-			}
+		ScheduleGenerator scheduleGenerator = new ScheduleGenerator(webClient);
+		Schedule schedule = scheduleGenerator.generate(enteredParameters);
 
-			ExcelCreator excelCreator = new ExcelCreator();
+		String fileName;
+		if (enteredParameters.getFileName() == null) {
+			PropertiesReader propertiesReader = PropertiesReader.getInstance();
+			fileName = propertiesReader.readProperty("excel.defaultName");
+		} else {
+			fileName = enteredParameters.getFileName();
+		}
+		if (!fileName.endsWith(".xlsx")) {
+			fileName = fileName + ".xlsx";
+		}
 
-			Workbook workbook = excelCreator.createWorkbook(schedule);
+		ExcelCreator excelCreator = new ExcelCreator();
 
-			// temporary solution start
+		Workbook workbook = excelCreator.createWorkbook(schedule);
+
+		try {
 			OutputStream stream = new FileOutputStream(fileName);
 			workbook.write(stream);
 			workbook.close();
-			// temporary solution stop
-
-		} catch (IncorrectParametersException | ParseException | IOException e) {
-			System.out.println(e.getMessage());
-			usagePrinter.printHelp();
-		} catch (NumberFormatException e) {
-			System.out.println("Impossible to read number " + e.getMessage());
+			System.out.println("Successfully saved the schedule to file " + fileName);
+		} catch (IOException e) {
+			System.out.println("Impossible to write schedule workbook.");
+			return;
+		}
+		try {
+			if (schedule.isLastDayShorter()) {
+				System.out.println(WARNING_MESSAGE);
+				String shortName = fileName.substring(0, fileName.lastIndexOf("."));
+				Files.write(Paths.get(shortName + "-warning.txt"), WARNING_MESSAGE.getBytes());
+			}
+		} catch (IOException ignore) {
 		}
 	}
-
 }

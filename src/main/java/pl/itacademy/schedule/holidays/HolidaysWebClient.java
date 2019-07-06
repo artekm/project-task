@@ -1,24 +1,14 @@
 package pl.itacademy.schedule.holidays;
 
-import com.jayway.jsonpath.DocumentContext;
-import com.jayway.jsonpath.JsonPath;
-import net.minidev.json.JSONArray;
-import pl.itacademy.schedule.util.PropertiesReader;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import javax.ws.rs.client.*;
+import javax.ws.rs.core.MediaType;
+import com.jayway.jsonpath.*;
+import net.minidev.json.JSONArray;
+import pl.itacademy.schedule.util.PropertiesReader;
 
 public class HolidaysWebClient {
 
@@ -67,13 +57,6 @@ public class HolidaysWebClient {
         
         Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
         String json = invocationBuilder.get(String.class);
-
-//        try {
-//			Files.write(Paths.get("receivedJSON.json"),json.getBytes());
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 
 		List<Map<String,Integer>> holidays = JsonPath.parse(json).read(jsonPath);
 

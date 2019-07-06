@@ -8,15 +8,27 @@ import java.time.format.DateTimeFormatter;
 
 public class ExcelCreator {
 
-	private Workbook workbook;
-	private CellStyle cellStyleRight;
-	private CellStyle cellStyleLeft;
-	private CellStyle cellStyleLeftBold;
-	private CellStyle cellStyleRightBold;
-
 	public Workbook createWorkbook(Schedule schedule) {
-		workbook = new XSSFWorkbook();
-		createCellStyles();
+		Workbook workbook = new XSSFWorkbook();
+		
+		CellStyle cellStyleRight = workbook.createCellStyle();
+		cellStyleRight.setAlignment(HorizontalAlignment.RIGHT);
+		
+		CellStyle cellStyleLeft = workbook.createCellStyle();
+		cellStyleLeft.setAlignment(HorizontalAlignment.LEFT);
+		
+		CellStyle cellStyleLeftBold = workbook.createCellStyle();
+		cellStyleLeftBold.cloneStyleFrom(cellStyleLeft);
+		Font font = workbook.createFont();
+		font.setFontName("Calibri");
+		font.setFontHeightInPoints((short)11);
+		font.setBold(true);
+		cellStyleLeftBold.setFont(font);
+		
+		CellStyle cellStyleRightBold = workbook.createCellStyle();
+		cellStyleRightBold.cloneStyleFrom(cellStyleRight);
+		cellStyleRightBold.setFont(font);
+		
 		Sheet sheet = workbook.createSheet("Schedule");
 
 		PropertiesReader propertiesReader = PropertiesReader.getInstance();
@@ -58,24 +70,24 @@ public class ExcelCreator {
 	}
 
 	private void setCellValue(Sheet sheet, int row, int column, String value, CellStyle style) {
-		Cell cell = getOrCreateRowAndCell(sheet, row, column);
+		Cell cell = prepareCell(sheet, row, column);
 		cell.setCellValue(value);
 		cell.setCellStyle(style);
 	}
 
 	private void setCellValue(Sheet sheet, int row, int column, int value, CellStyle style) {
-		Cell cell = getOrCreateRowAndCell(sheet, row, column);
+		Cell cell = prepareCell(sheet, row, column);
 		cell.setCellValue(value);
 		cell.setCellStyle(style);
 	}
 
 	private void setCellFormula(Sheet sheet, int row, int column, String formula, CellStyle style) {
-		Cell cell = getOrCreateRowAndCell(sheet, row, column);
+		Cell cell = prepareCell(sheet, row, column);
 		cell.setCellFormula(formula);
 		cell.setCellStyle(style);
 	}
 
-	private Cell getOrCreateRowAndCell(Sheet sheet, int rowNumber, int columnNumber) {
+	private Cell prepareCell(Sheet sheet, int rowNumber, int columnNumber) {
 		Row row = getOrCreateRow(sheet, rowNumber);
 		Cell cell = getOrCreateCell(row, columnNumber);
 		return cell;
@@ -93,26 +105,5 @@ public class ExcelCreator {
 		if (cell == null)
 			cell = row.createCell(columnNumber);
 		return cell;
-	}
-
-	private void createCellStyles() {
-		cellStyleRight = workbook.createCellStyle();
-		cellStyleRight.setAlignment(HorizontalAlignment.RIGHT);
-		
-		cellStyleLeft = workbook.createCellStyle();
-		cellStyleLeft.setAlignment(HorizontalAlignment.LEFT);
-		
-		cellStyleLeftBold = workbook.createCellStyle();
-		cellStyleLeftBold.cloneStyleFrom(cellStyleLeft);
-		Font font = workbook.createFont();
-		font.setFontName("Calibri");
-		font.setFontHeightInPoints((short)11);
-		font.setBold(true);
-		cellStyleLeftBold.setFont(font);
-		
-		cellStyleRightBold = workbook.createCellStyle();
-		cellStyleRightBold.cloneStyleFrom(cellStyleRight);
-		cellStyleRightBold.setFont(font);
-	
 	}
 }
