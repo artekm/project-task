@@ -17,15 +17,26 @@ import java.util.stream.Collectors;
 
 public class HolidaysWebClient {
 
+    public static void main(String[] args) throws InterruptedException {
+        HolidaysWebClient webClient = new HolidaysWebClient();
+        System.out.println(webClient.getHolidays(2019));
+        Thread.sleep(1100);
+        System.out.println(webClient.getHolidays(2020));
+    }
+
     public List<LocalDate> getHolidays(int year) {
 
+        PropertiesReader propertiesReader = PropertiesReader.getInstance();
+        String url = propertiesReader.readProperty("calendarific.url");
+        String holidaysEndpoint = propertiesReader.readProperty("calendarific.holidays.endpoint");
+        String country = propertiesReader.readProperty("calendarific.country");
+        String type = propertiesReader.readProperty("calendarific.type");
+        String key = propertiesReader.readProperty("calendarific.api.key");
+        String jsonPath = propertiesReader.readProperty("calendarific.jsonPath");
+
         Client client = ClientBuilder.newClient();
-        String url = PropertiesReader.getInstance().readProperty("calendarific.url");
-        String country = PropertiesReader.getInstance().readProperty("calendarific.country");
-        String type = PropertiesReader.getInstance().readProperty("calendarific.type");
-        String key = PropertiesReader.getInstance().readProperty("calendarific.api.key");
-        String jsonPath = PropertiesReader.getInstance().readProperty("calendarific.jsonPath");
         WebTarget webTarget = client.target(url)
+                .path(holidaysEndpoint)
                 .queryParam("country", country)
                 .queryParam("type", type)
                 .queryParam("api_key", key)
