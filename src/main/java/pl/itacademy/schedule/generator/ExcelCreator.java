@@ -1,11 +1,10 @@
 package pl.itacademy.schedule.generator;
 
-import java.time.format.DateTimeFormatter;
-
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import pl.itacademy.schedule.util.PropertiesReader;
+
+import java.time.format.DateTimeFormatter;
 
 public class ExcelCreator {
 
@@ -44,7 +43,7 @@ public class ExcelCreator {
 		setCellFormula(sheet, 3, 8, "COUNTIF(B1:B57,\"done\")", cellStyleLeft);
 
 		setCellValue(sheet, 4, 7, "lessons planned", cellStyleRight);
-		setCellValue(sheet, 4, 8, schedule.getNumberOfDays(), cellStyleLeft);
+		setCellValue(sheet, 4, 8, schedule.getLessons().size(), cellStyleLeft);
 
 		setCellValue(sheet,14,7,"STATUS:",cellStyleRightBold);
 		setCellFormula(sheet,14,8,"IF(I1=I2,\"COMPLETED\",\"IN PROGRESS\")",cellStyleLeftBold);

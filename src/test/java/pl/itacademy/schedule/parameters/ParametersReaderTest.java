@@ -41,7 +41,6 @@ public class ParametersReaderTest {
         expectedException.expectMessage("Arguments are empty");
 
         parametersReader.parseArguments(new String[0]);
-
     }
 
     @Test
