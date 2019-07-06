@@ -16,50 +16,52 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
-import static java.util.Objects.isNull;
-
 public class ScheduleGeneratorApp {
 
-    public static void main(String[] args) {
+	public static void main(String[] args) {
 
-        ParametersReader.UsagePrinter usagePrinter = new ParametersReader.UsagePrinter();
-        ParametersReader parametersReader = new ParametersReader();
-        EnteredParameters enteredParameters;
-        try {
-            enteredParameters = parametersReader.parseArguments(args);
-            if (enteredParameters.isShowHelp()) {
-                usagePrinter.printHelp();
-                return;
-            }
-            ParametersValidator validator = new ParametersValidator();
-            validator.validate(enteredParameters);
-        } catch (IncorrectParametersException | ParseException e) {
-            System.out.println("Wrong parameters! " + e.getMessage());
-            usagePrinter.printHelp();
-            return;
-        } catch (NumberFormatException e) {
-            System.out.println("Impossible to read number " + e.getMessage());
-            return;
-        }
+		ParametersReader.UsagePrinter usagePrinter = new ParametersReader.UsagePrinter();
+		ParametersReader parametersReader = new ParametersReader();
+		HolidaysWebClient webClient = new HolidaysWebClient();
+		EnteredParameters enteredParameters;
+		try {
+			enteredParameters = parametersReader.parseArguments(args);
+			if (enteredParameters.isShowHelp()) {
+				usagePrinter.printHelp();
+				return;
+			}
+			ParametersValidator validator = new ParametersValidator();
+			validator.validate(enteredParameters);
+			
+			ScheduleGenerator scheduleGenerator = new ScheduleGenerator(webClient);
+			Schedule schedule = scheduleGenerator.generate(enteredParameters);
 
-        HolidaysWebClient webClient = new HolidaysWebClient();
-        ScheduleGenerator scheduleGenerator = new ScheduleGenerator(webClient);
-        Schedule schedule = scheduleGenerator.generate(enteredParameters);
+			String fileName;
+			if (enteredParameters.getFileName() == null) {
+				PropertiesReader propertiesReader = PropertiesReader.getInstance();
+				fileName = propertiesReader.readProperty("excel.defaultName") + ".xlsx";
+			} else {
+				fileName = enteredParameters.getFileName();
+				if (!fileName.endsWith(".xlsx"))
+					fileName = fileName + ".xlsx";
+			}
 
-        String fileName = enteredParameters.getFileName();
-        if (isNull(fileName)) {
-            fileName = PropertiesReader.getInstance().readProperty("excel.defaultName");
-        } else if (!fileName.endsWith(".xlsx")) {
-            fileName = fileName + ".xlsx";
-        }
+			ExcelCreator excelCreator = new ExcelCreator();
 
-        ExcelCreator excelCreator = new ExcelCreator();
-        try (Workbook workbook = excelCreator.createWorkbook(schedule);
-             OutputStream outputStream = new FileOutputStream(fileName)) {
-            workbook.write(outputStream);
-        } catch (IOException e) {
-            System.out.println("Impossible to write workbook as a file: " + fileName);
-        }
-    }
+			Workbook workbook = excelCreator.createWorkbook(schedule);
+
+			// temporary solution start
+			OutputStream stream = new FileOutputStream(fileName);
+			workbook.write(stream);
+			workbook.close();
+			// temporary solution stop
+
+		} catch (IncorrectParametersException | ParseException | IOException e) {
+			System.out.println(e.getMessage());
+			usagePrinter.printHelp();
+		} catch (NumberFormatException e) {
+			System.out.println("Impossible to read number " + e.getMessage());
+		}
+	}
 
 }
