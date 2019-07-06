@@ -6,11 +6,11 @@ public class Schedule {
 
     private Collection<Lesson> lessons;
 
-    private boolean successfulSchedule;
+    private boolean lastDayShorter;
+    private int numberOfDays;
+    private int numberOfHours;
 
-    public Schedule(Collection<Lesson> lessons, boolean successfulSchedule) {
-        this.lessons = lessons;
-        this.successfulSchedule = successfulSchedule;
+    public Schedule() {
     }
 
     public Collection<Lesson> getLessons() {
@@ -21,11 +21,28 @@ public class Schedule {
         this.lessons = lessons;
     }
 
-    public boolean isSuccessfulSchedule() {
-        return successfulSchedule;
-    }
+	public boolean isLastDayShorter() {
+		return lastDayShorter;
+	}
 
-    public void setSuccessfulSchedule(boolean successfulSchedule) {
-        this.successfulSchedule = successfulSchedule;
-    }
+	public void setLastDayShorter(boolean lastDayShorter) {
+		this.lastDayShorter = lastDayShorter;
+	}
+
+	public int getNumberOfDays() {
+		return numberOfDays;
+	}
+
+	public void setNumberOfDays(int numberOfDays) {
+		this.numberOfDays = numberOfDays;
+	}
+
+	public int getNumberOfHours() {
+		return numberOfHours;
+	}
+
+	public void setNumberOfHours(int numberOfHours) {
+		this.numberOfHours = numberOfHours;
+	}
+    
 }
