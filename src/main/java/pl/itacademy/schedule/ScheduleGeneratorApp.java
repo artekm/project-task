@@ -6,6 +6,11 @@ import pl.itacademy.schedule.exception.IncorrectParametersException;
 import pl.itacademy.schedule.generator.ExcelCreator;
 import pl.itacademy.schedule.generator.Schedule;
 import pl.itacademy.schedule.generator.ScheduleGenerator;
+import pl.itacademy.schedule.holidays.HolidaysByRule;
+import pl.itacademy.schedule.holidays.HolidaysFromCalendarific;
+import pl.itacademy.schedule.holidays.HolidaysFromEnrico;
+import pl.itacademy.schedule.holidays.HolidaysNone;
+import pl.itacademy.schedule.holidays.HolidaysProvider;
 import pl.itacademy.schedule.holidays.HolidaysWebClient;
 import pl.itacademy.schedule.parameters.EnteredParameters;
 import pl.itacademy.schedule.parameters.ParametersReader;
@@ -25,7 +30,6 @@ public class ScheduleGeneratorApp {
 
 		ParametersReader.UsagePrinter usagePrinter = new ParametersReader.UsagePrinter();
 		ParametersReader parametersReader = new ParametersReader();
-		HolidaysWebClient webClient = new HolidaysWebClient();
 		EnteredParameters enteredParameters;
 		try {
 			enteredParameters = parametersReader.parseArguments(args);
@@ -44,6 +48,20 @@ public class ScheduleGeneratorApp {
 			return;
 		}
 
+		PropertiesReader properties = PropertiesReader.getInstance();
+		String provider = properties.readProperty("holidaysProvider");
+		HolidaysProvider webClient;
+		if (provider == null) {
+			webClient = new HolidaysNone();
+		} else if (provider.equals("enrico")) {
+			webClient = new HolidaysFromEnrico();
+		} else if (provider.equals("calendarific")) {
+			webClient = new HolidaysFromCalendarific();
+		} else if (provider.equals("rule")) {
+			webClient = new HolidaysByRule();
+		} else {
+			webClient = new HolidaysNone();
+		}
 		ScheduleGenerator scheduleGenerator = new ScheduleGenerator(webClient);
 		Schedule schedule = scheduleGenerator.generate(enteredParameters);
 

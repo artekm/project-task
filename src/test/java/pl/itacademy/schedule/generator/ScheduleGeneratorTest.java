@@ -1,15 +1,5 @@
 package pl.itacademy.schedule.generator;
 
-import org.junit.Before;
-import org.junit.Test;
-import pl.itacademy.schedule.holidays.HolidaysWebClient;
-import pl.itacademy.schedule.parameters.EnteredParameters;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.List;
-
 import static java.time.DayOfWeek.SATURDAY;
 import static java.time.DayOfWeek.TUESDAY;
 import static org.hamcrest.Matchers.containsInAnyOrder;
@@ -17,13 +7,24 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.Collection;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import pl.itacademy.schedule.holidays.HolidaysProvider;
+import pl.itacademy.schedule.parameters.EnteredParameters;
+
 public class ScheduleGeneratorTest {
 
     private ScheduleGenerator generator;
 
     @Before
     public void setUp() {
-        HolidaysWebClient webClient = new HolidaysWebClientMock();
+        HolidaysProvider webClient = new HolidaysWebClientMock();
         generator = new ScheduleGenerator(webClient);
     }
 
@@ -64,10 +65,11 @@ public class ScheduleGeneratorTest {
         assertTrue(schedule.isLastDayShorter());
     }
 
-    private final static class HolidaysWebClientMock extends HolidaysWebClient {
-        @Override
-        public List<LocalDate> getHolidays(int year) {
-            return Arrays.asList(LocalDate.of(2019, 1, 1),
+    private final static class HolidaysWebClientMock implements HolidaysProvider {
+
+		@Override
+		public Collection<LocalDate> getHolidays(LocalDate from, LocalDate to) {
+	    	return Arrays.asList(LocalDate.of(2019, 1, 1),
                     LocalDate.of(2019, 1, 6));
         }
     }

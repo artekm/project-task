@@ -1,16 +1,16 @@
 package pl.itacademy.schedule.generator;
 
-import pl.itacademy.schedule.holidays.HolidaysWebClient;
-import pl.itacademy.schedule.parameters.EnteredParameters;
-
 import java.time.*;
 import java.util.*;
 
+import pl.itacademy.schedule.holidays.HolidaysProvider;
+import pl.itacademy.schedule.parameters.EnteredParameters;
+
 public class ScheduleGenerator {
 
-	private HolidaysWebClient webClient;
+	private HolidaysProvider webClient;
 
-	public ScheduleGenerator(HolidaysWebClient webClient) {
+	public ScheduleGenerator(HolidaysProvider webClient) {
 		this.webClient = webClient;
 	}
 
@@ -21,22 +21,13 @@ public class ScheduleGenerator {
 		LocalTime beginTime = parameters.getBeginTime();
 		LocalTime endTime = parameters.getEndTime();
 		Collection<DayOfWeek> lessonDays = parameters.getLessonDays();
-		long dailyMinutes = Duration.between(beginTime, endTime).toMinutes();
-		long totalMinutes = parameters.getHoursNumber() * 60;
+		int dailyMinutes = (int) Duration.between(beginTime, endTime).toMinutes();
+		int totalMinutes = parameters.getHoursNumber() * 60;
 
-//		Use below code to get holidays from calendarific
-//		Collection<LocalDate> publicHolidays = webClient.getHolidays(parameters.getStartDate().getYear());
-//		try {
-//			Thread.sleep(1500);
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
-//		Collection<LocalDate> publicHolidays2 = webClient.getHolidays(parameters.getStartDate().plusYears(1).getYear());
-//		publicHolidays.addAll(publicHolidays2);
+		int rawMonthEstimation = (totalMinutes / dailyMinutes) / (lessonDays.size() * 4) + 1; // 4 weeks/month, plus 1
 
-//		Use below code to get holidays from Enrico
-		Collection<LocalDate> publicHolidays = webClient.getHolidaysFromEnrico(parameters.getStartDate(),
-				parameters.getStartDate().plusYears(1));
+		Collection<LocalDate> publicHolidays = webClient.getHolidays(parameters.getStartDate(),
+				parameters.getStartDate().plusMonths(rawMonthEstimation));
 
 		LocalDate startDate = findNextDate(parameters.getStartDate(), lessonDays, publicHolidays);
 		while (totalMinutes >= dailyMinutes) {
@@ -68,50 +59,5 @@ public class ScheduleGenerator {
 
 	private boolean isPublicHoliday(LocalDate date, Collection<LocalDate> publicHolidays) {
 		return publicHolidays.contains(date);
-	}
-
-	// This is unused so far, but maybe sometime ...
-	public boolean isHolidayByRule(LocalDate date) {
-		int day = date.getDayOfMonth();
-		int mon = date.getMonthValue();
-		if ((day == 1) && (mon == 1))
-			return true; // Nowy Rok
-		if ((day == 6) && (mon == 1))
-			return true; // 3 Królów
-		if ((day == 1) && (mon == 5))
-			return true; // Święto Pracy
-		if ((day == 3) && (mon == 5))
-			return true; // Dzień Konstytucji
-		if ((day == 15) && (mon == 8))
-			return true; // Wniebowzięcie NMP
-		if ((day == 1) && (mon == 11))
-			return true; // Wszystkich Świętych
-		if ((day == 11) && (mon == 11))
-			return true; // Dzień Niepodległości
-		if ((day == 25) && (mon == 12))
-			return true; // Boże Narodzenie 1
-		if ((day == 26) && (mon == 12))
-			return true; // Boże Narodzenie 2
-
-		int a = date.getYear() % 19;
-		int b = date.getYear() % 4;
-		int c = date.getYear() % 7;
-		int d = (a * 19 + 24) % 30;
-		int e = (2 * b + 4 * c + 6 * d + 5) % 7;
-		if (d == 29 && e == 6)
-			d -= 7;
-		if (d == 28 && e == 6 && a > 10)
-			d -= 7;
-		LocalDate easter = LocalDate.of(date.getYear(), 3, 22).plusDays(d + e);
-
-		if (easter.isEqual(date))
-			return true; // Wielkanoc
-		if (easter.plusDays(1).isEqual(date))
-			return true; // Wielkanoc poniedziałek
-		if (easter.plusDays(49).isEqual(date))
-			return true; // Zielone Świątki
-		if (easter.plusDays(60).isEqual(date))
-			return true; // Boże Ciało
-		return false;
 	}
 }
