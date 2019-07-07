@@ -18,24 +18,29 @@ public class ScheduleGenerator {
         while (requiredTime > 0) {
             LocalDate nextDay = getNextDay(parameters.getStartDate(), parameters.getLessonDays());
             lessons.add(new Lesson(nextDay, parameters.getBeginTime(), parameters.getEndTime()));
+
             requiredTime -= lessonDuration;
         }
         return new Schedule(lessons, true);
     }
 
+
     private LocalDate getNextDay(LocalDate startDate, Collection<DayOfWeek> classesDays) {
+
         while (isNotRequiredDayOfWeek(classesDays, startDate)) {
-            startDate = startDate.plus(1, ChronoUnit.DAYS);
+
+            startDate = startDate.plusDays(1);
         }
         return startDate;
     }
 
     private boolean isNotRequiredDayOfWeek(Collection<DayOfWeek> classesDays, LocalDate currentDate) {
+
         return !isRequiredDayOfWeek(classesDays, currentDate);
     }
 
     private boolean isRequiredDayOfWeek(Collection<DayOfWeek> classesDays, LocalDate currentDate) {
-        return classesDays.contains(currentDate.getDayOfWeek());
+        return !classesDays.contains(currentDate.getDayOfWeek());
     }
-    
+
 }
