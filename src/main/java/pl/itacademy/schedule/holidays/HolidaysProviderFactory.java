@@ -8,7 +8,7 @@ public class HolidaysProviderFactory {
 		PropertiesReader properties = PropertiesReader.getInstance();
 		String provider = properties.readProperty("holidaysProvider");
 
-		String pack = HolidaysProviderFactory.class.getPackageName();
+		String pack = HolidaysProviderFactory.class.getPackage().getName();
 		String className = pack + "." + provider;
 		HolidaysProvider webClient;
 		try {
