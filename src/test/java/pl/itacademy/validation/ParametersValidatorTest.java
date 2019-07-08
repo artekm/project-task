@@ -139,4 +139,16 @@ public class ParametersValidatorTest {
 
         validator.validate(inputParameters);
     }
+
+    @Test
+    public void validate_properParameters_throwsNoException() throws InvalidParameterException {
+        InputParameters inputParameters = new InputParameters();
+        inputParameters.setLessonDays(Collections.singletonList(DayOfWeek.MONDAY));
+        inputParameters.setStartDate(LocalDate.now());
+        inputParameters.setHoursNumber(4);
+        inputParameters.setBeginTime(LocalTime.of(17, 0));
+        inputParameters.setEndTime(LocalTime.of(18, 30));
+
+        validator.validate(inputParameters);
+    }
 }
