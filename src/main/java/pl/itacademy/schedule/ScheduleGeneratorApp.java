@@ -1,27 +1,24 @@
 package pl.itacademy.schedule;
 
-import org.apache.commons.cli.ParseException;
-import org.apache.poi.ss.usermodel.Workbook;
-import pl.itacademy.schedule.exception.IncorrectParametersException;
-import pl.itacademy.schedule.generator.ExcelCreator;
-import pl.itacademy.schedule.generator.Schedule;
-import pl.itacademy.schedule.generator.ScheduleGenerator;
-import pl.itacademy.schedule.holidays.HolidaysByRule;
-import pl.itacademy.schedule.holidays.HolidaysFromCalendarific;
-import pl.itacademy.schedule.holidays.HolidaysFromEnrico;
-import pl.itacademy.schedule.holidays.HolidaysNone;
-import pl.itacademy.schedule.holidays.HolidaysProvider;
-import pl.itacademy.schedule.holidays.HolidaysWebClient;
-import pl.itacademy.schedule.parameters.EnteredParameters;
-import pl.itacademy.schedule.parameters.ParametersReader;
-import pl.itacademy.schedule.parameters.ParametersValidator;
-import pl.itacademy.schedule.util.PropertiesReader;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+import org.apache.commons.cli.ParseException;
+import org.apache.poi.ss.usermodel.Workbook;
+
+import pl.itacademy.schedule.exception.IncorrectParametersException;
+import pl.itacademy.schedule.generator.ExcelCreator;
+import pl.itacademy.schedule.generator.Schedule;
+import pl.itacademy.schedule.generator.ScheduleGenerator;
+import pl.itacademy.schedule.holidays.HolidaysProvider;
+import pl.itacademy.schedule.holidays.HolidaysProviderFactory;
+import pl.itacademy.schedule.parameters.EnteredParameters;
+import pl.itacademy.schedule.parameters.ParametersReader;
+import pl.itacademy.schedule.parameters.ParametersValidator;
+import pl.itacademy.schedule.util.PropertiesReader;
 
 public class ScheduleGeneratorApp {
 	public static final String WARNING_MESSAGE = "Warning: last lesson is shorter than the others\n";
@@ -47,21 +44,8 @@ public class ScheduleGeneratorApp {
 			System.out.println("Impossible to read number " + e.getMessage());
 			return;
 		}
-
-		PropertiesReader properties = PropertiesReader.getInstance();
-		String provider = properties.readProperty("holidaysProvider");
-		HolidaysProvider webClient;
-		if (provider == null) {
-			webClient = new HolidaysNone();
-		} else if (provider.equals("enrico")) {
-			webClient = new HolidaysFromEnrico();
-		} else if (provider.equals("calendarific")) {
-			webClient = new HolidaysFromCalendarific();
-		} else if (provider.equals("rule")) {
-			webClient = new HolidaysByRule();
-		} else {
-			webClient = new HolidaysNone();
-		}
+		HolidaysProvider webClient = HolidaysProviderFactory.getProvider();
+		
 		ScheduleGenerator scheduleGenerator = new ScheduleGenerator(webClient);
 		Schedule schedule = scheduleGenerator.generate(enteredParameters);
 
