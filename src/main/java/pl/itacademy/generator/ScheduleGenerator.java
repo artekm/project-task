@@ -46,4 +46,5 @@ public class ScheduleGenerator {
     private boolean isRequiredDayOfWeek(Collection<DayOfWeek> classesDays, LocalDate currentDate) {
         return classesDays.contains(currentDate.getDayOfWeek());
     }
+    
 }
