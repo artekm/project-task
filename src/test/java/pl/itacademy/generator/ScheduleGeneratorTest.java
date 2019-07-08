@@ -41,4 +41,24 @@ public class ScheduleGeneratorTest {
         assertThat(schedule.getLessons(), containsInAnyOrder(first, second, third, fourth));
         assertThat(schedule.isLessonsFitToSchedule(), equalTo(true));
     }
+
+    @Test
+    public void generate_getInputParameters_returnsScheduleWithFlagFalse() {
+        InputParameters inputParameters = new InputParameters();
+        inputParameters.setStartDate(LocalDate.of(2019, 7, 1));
+        inputParameters.setBeginTime(LocalTime.of(17, 0));
+        inputParameters.setEndTime(LocalTime.of(18, 30));
+        inputParameters.setLessonDays(Arrays.asList(DayOfWeek.MONDAY, DayOfWeek.THURSDAY));
+        inputParameters.setHoursNumber(5);
+
+        Lesson first = new Lesson(LocalDate.of(2019, 7, 1), LocalTime.of(17, 0), LocalTime.of(18, 30));
+        Lesson second = new Lesson(LocalDate.of(2019, 7, 4), LocalTime.of(17, 0), LocalTime.of(18, 30));
+        Lesson third = new Lesson(LocalDate.of(2019, 7, 8), LocalTime.of(17, 0), LocalTime.of(18, 30));
+        Lesson fourth = new Lesson(LocalDate.of(2019, 7, 11), LocalTime.of(17, 0), LocalTime.of(17, 30));
+
+        Schedule schedule = scheduleGenerator.generate(inputParameters);
+
+        assertThat(schedule.getLessons(), containsInAnyOrder(first, second, third, fourth));
+        assertThat(schedule.isLessonsFitToSchedule(), equalTo(false));
+    }
 }
