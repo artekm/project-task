@@ -15,37 +15,31 @@ public class HolidaysFromEnrico implements HolidaysProvider {
 
 	@Override
 	public Collection<LocalDate> getHolidays(LocalDate from, LocalDate to) {
-		String holidaysString;
 		try {
-			holidaysString = askEnricoForHolidays(from, to);
-		} catch (IOException e) {
-			try {
-				holidaysString = askEnricoForHolidays(from, to);
-			} catch (IOException e2) {
-				try {
-					holidaysString = askEnricoForHolidays(from, to);
-				} catch (IOException e3) {
-					System.out.println("Unable to obtain holidays from the web");
-					return Collections.emptyList();
-				}
-			}
-		}
-
-		List<LocalDate> holidays;
-
-		try {
-			holidays = parseHolidays(holidaysString);
+			String holidaysString = askEnricoForHolidays(from, to);
+			List<LocalDate> holidays = parseHolidays(holidaysString);
+			return holidays;
 		} catch (Exception e4) {
 			System.out.println("Unable to obtain holidays from the web");
 			return Collections.emptyList();
 		}
-
-		return holidays;
 	}
 
-	private static String askEnricoForHolidays(LocalDate startDate, LocalDate endDate) throws IOException {
+	private String askEnricoForHolidays(LocalDate startDate, LocalDate endDate) throws IOException {
 		System.setProperty("com.sun.security.enableAIAcaIssuers", "true");
 
+		String queryString = prepareQuery(startDate, endDate);
+		URL myURL = new URL(queryString);
+
+		HttpsURLConnection con = (HttpsURLConnection) myURL.openConnection();
+		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
+		String received = in.readLine();
+		in.close();
+
+		return received;
+	}
+
+	private String prepareQuery(LocalDate startDate, LocalDate endDate) {
 		PropertiesReader properties = PropertiesReader.getInstance();
 		String url = properties.readProperty("enrico.url");
 		String action = properties.readProperty("enrico.action");
@@ -55,18 +49,11 @@ public class HolidaysFromEnrico implements HolidaysProvider {
 
 		String queryString = String.format("%s?action=%s&country=%s&type=%s&fromDate=%s&toDate=%s",
 				url, action, country, type, startDate.format(dateFormatter), endDate.format(dateFormatter));
-
-		URL myURL = new URL(queryString);
-		HttpsURLConnection con = (HttpsURLConnection) myURL.openConnection();
-
-		BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-		String received = in.readLine();
-		in.close();
-
-		return received;
+		
+		return queryString;
 	}
-
-	private static List<LocalDate> parseHolidays(String input) {
+	
+	private List<LocalDate> parseHolidays(String input) {
 
 		PropertiesReader properties = PropertiesReader.getInstance();
 		String jsonPath = properties.readProperty("enrico.jsonPath");

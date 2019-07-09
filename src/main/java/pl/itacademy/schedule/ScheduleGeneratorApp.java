@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.format.DateTimeParseException;
 
 import org.apache.commons.cli.ParseException;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -36,12 +37,13 @@ public class ScheduleGeneratorApp {
 			}
 			ParametersValidator validator = new ParametersValidator();
 			validator.validate(enteredParameters);
-		} catch (IncorrectParametersException | ParseException e) {
+		} catch (IncorrectParametersException | ParseException | DateTimeParseException e) {
 			System.out.println(e.getMessage());
 			usagePrinter.printHelp();
 			return;
-		} catch (NumberFormatException e) {
+		} catch (IllegalArgumentException e) {
 			System.out.println("Impossible to read number " + e.getMessage());
+			usagePrinter.printHelp();
 			return;
 		}
 		HolidaysProvider webClient = HolidaysProviderFactory.getProvider();

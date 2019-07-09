@@ -3,10 +3,10 @@ package pl.itacademy.schedule.holidays;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
@@ -19,36 +19,40 @@ import pl.itacademy.schedule.util.PropertiesReader;
 public class HolidaysFromCalendarific implements HolidaysProvider {
 
 	@Override
-	public Collection<LocalDate> getHolidays(LocalDate from, LocalDate to) {
-		int yearStart = from.getYear();
-		int yearEnd = to.getYear();
+	public Collection<LocalDate> getHolidays(LocalDate fromDate, LocalDate toDate) {
+		int yearStart = fromDate.getYear();
+		int yearEnd = toDate.getYear();
 		int year = yearStart;
-		Collection<LocalDate> publicHolidays = getHolidaysForYear(year);
-		while (year < yearEnd) {
-			try {
+		try {
+			Collection<LocalDate> publicHolidays = getHolidaysForYear(year);
+			while (year < yearEnd) {
 				Thread.sleep(1500);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
+				year++;
+				publicHolidays.addAll(getHolidaysForYear(year));
 			}
-			year++;
-			publicHolidays.addAll(getHolidaysForYear(year));
+			return publicHolidays;
+		} catch (Exception e4) {
+			System.out.println("Unable to obtain holidays from the web");
+			return Collections.emptyList();
 		}
-		return publicHolidays;
 	}
 
 	public List<LocalDate> getHolidaysForYear(int year) {
 
-		Client client = ClientBuilder.newClient();
-		String url = PropertiesReader.getInstance().readProperty("calendarific.url");
-		String country = PropertiesReader.getInstance().readProperty("calendarific.country");
-		String type = PropertiesReader.getInstance().readProperty("calendarific.type");
-		String key = PropertiesReader.getInstance().readProperty("calendarific.api.key");
-		String jsonPath = PropertiesReader.getInstance().readProperty("calendarific.jsonPath");
-		WebTarget webTarget = client.target(url)
+		PropertiesReader reader = PropertiesReader.getInstance();
+		String url = reader.readProperty("calendarific.url");
+		String country = reader.readProperty("calendarific.country");
+		String type = reader.readProperty("calendarific.type");
+		String key = reader.readProperty("calendarific.api.key");
+		String jsonPath = reader.readProperty("calendarific.jsonPath");
+
+		WebTarget webTarget = ClientBuilder.newClient()
+				.target(url)
 				.queryParam("country", country)
 				.queryParam("type", type)
 				.queryParam("api_key", key)
 				.queryParam("year", year);
+
 		Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
 
 		String json = invocationBuilder.get(String.class);
