@@ -71,8 +71,9 @@ public class ExcelGenerator {
         }
 
         Row hoursDoneRow = sheet.getRow(0);
-        if (hoursDoneRow == null)
+        if (hoursDoneRow == null) {
             hoursDoneRow = sheet.createRow(0);
+        }
 
         Cell hoursDoneTextCell = hoursDoneRow.createCell(7);
         hoursDoneTextCell.setCellValue("hours done");
@@ -83,8 +84,9 @@ public class ExcelGenerator {
 
 
         Row hoursPlannedRow;
-        if ((hoursPlannedRow = sheet.getRow(1)) == null)
+        if ((hoursPlannedRow = sheet.getRow(1)) == null) {
             hoursPlannedRow = sheet.createRow(1);
+        }
 
         Cell hoursPlannedTextCell = hoursPlannedRow.createCell(7);
         hoursPlannedTextCell.setCellValue("hours planned");
@@ -95,8 +97,9 @@ public class ExcelGenerator {
 
 
         Row lessonsDoneRow;
-        if ((lessonsDoneRow = sheet.getRow(3)) == null)
+        if ((lessonsDoneRow = sheet.getRow(3)) == null) {
             lessonsDoneRow = sheet.createRow(3);
+        }
 
         Cell lessonsDoneTextCell = lessonsDoneRow.createCell(7);
         lessonsDoneTextCell.setCellValue("lessons done");
@@ -107,8 +110,9 @@ public class ExcelGenerator {
 
 
         Row lessonsPlannedRow;
-        if ((lessonsPlannedRow = sheet.getRow(4)) == null)
+        if ((lessonsPlannedRow = sheet.getRow(4)) == null) {
             lessonsPlannedRow = sheet.createRow(4);
+        }
 
         Cell lessonsPlannedTextCell = lessonsPlannedRow.createCell(7);
         lessonsPlannedTextCell.setCellValue("lessons planned");
@@ -127,8 +131,9 @@ public class ExcelGenerator {
         statusValueCell.setCellFormula("IF(I1=I2,\"COMPLETED\",\"IN PROGRESS\")");
         statusValueCell.setCellStyle(statusStyle);
 
-        for (int col=0; col < 8; col++)
+        for (int col=0; col < 8; col++) {
             sheet.autoSizeColumn(col);
+        }
 
         sheet.setColumnWidth(5, 1000);
         sheet.setColumnWidth(8, 3700);

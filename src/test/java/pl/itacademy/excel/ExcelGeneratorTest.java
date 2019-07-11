@@ -18,6 +18,7 @@ import java.util.List;
 public class ExcelGeneratorTest {
 
     @Test
+    @Ignore
     public void createExcelFile() throws IOException {
         ExcelGenerator generator = new ExcelGenerator();
 
@@ -31,7 +32,7 @@ public class ExcelGeneratorTest {
 
         Workbook workbook = generator.createScheduleWorkbook(schedule);
 
-        OutputStream outputStream = Files.newOutputStream(Paths.get(".\\file.xlsx"));
+        OutputStream outputStream = Files.newOutputStream(Paths.get("C:\\1\\file.xlsx"));
         workbook.write(outputStream);
         outputStream.close();
         workbook.close();
