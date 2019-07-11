@@ -86,12 +86,11 @@ public class InputParametersReaderTest {
     }
 
     @Test
-    public void readParameters_readHelp_returnsHelpFlag() throws ParseException {
+    public void readParameters_readHelp_returnsTrue() throws ParseException {
         String[] args = new String[]{"-h"};
 
         InputParameters inputParameters = inputParametersReader.readParameters(args);
 
         assertThat(inputParameters.isShowHelp(), equalTo(true));
     }
-
 }

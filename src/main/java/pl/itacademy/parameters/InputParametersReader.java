@@ -2,6 +2,7 @@ package pl.itacademy.parameters;
 
 import org.apache.commons.cli.*;
 
+import java.text.DateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -35,6 +36,7 @@ public class InputParametersReader {
             }
             inputParameters.setLessonDays(daysOfWeek);
         }
+
         if (cmd.hasOption("n")) {
             String numbersOfHours = cmd.getOptionValue("n");
             inputParameters.setHoursNumber(Integer.valueOf(numbersOfHours));
@@ -55,6 +57,28 @@ public class InputParametersReader {
             String fileName = cmd.getOptionValue("f");
             inputParameters.setFileName(fileName);
         }
+        inputParameters.setShowHelp(cmd.hasOption("h"));
+
+        if (cmd.hasOption("b")) {
+            String beginTime = cmd.getOptionValue("b");
+            inputParameters.setBeginTime(LocalTime.parse(beginTime));
+        }
+
+        if (cmd.hasOption("e")) {
+            String endTime = cmd.getOptionValue("e");
+            inputParameters.setEndTime(LocalTime.parse(endTime));
+        }
+
+        if (cmd.hasOption("s")) {
+            String startDate = cmd.getOptionValue("s");
+            inputParameters.setStartDate(LocalDate.parse(startDate, DATE_FORMAT));
+        }
+
+        if (cmd.hasOption("f")) {
+            String fileName = cmd.getOptionValue("f");
+            inputParameters.setFileName(fileName);
+        }
+
         inputParameters.setShowHelp(cmd.hasOption("h"));
 
         return inputParameters;

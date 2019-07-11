@@ -15,7 +15,7 @@ public class ScheduleGenerator {
         long lessonDuration = Duration.between(parameters.getBeginTime(), parameters.getEndTime()).toMinutes();
         Collection<Lesson> lessons = new ArrayList<>();
 
-        Schedule schedule = new Schedule(lessons, true);
+        Schedule schedule = new Schedule(lessons, parameters.getHoursNumber(), true);
 
         Collection<DayOfWeek> lessonDaysOfWeek = parameters.getLessonDays();
         LocalDate nextDay = getNextDay(parameters.getStartDate(), lessonDaysOfWeek);
