@@ -1,6 +1,7 @@
 package pl.itacademy.generator;
 
 import pl.itacademy.parameters.InputParameters;
+import pl.itacademy.web.HolidaysWebClient;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
@@ -9,6 +10,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class ScheduleGenerator {
+
+    private HolidaysWebClient webClient;
+
+    public ScheduleGenerator(HolidaysWebClient webClient) {
+        this.webClient = webClient;
+    }
 
     public Schedule generate(InputParameters parameters) {
         long requiredTime = parameters.getHoursNumber() * 60;
@@ -46,5 +53,5 @@ public class ScheduleGenerator {
     private boolean isRequiredDayOfWeek(Collection<DayOfWeek> classesDays, LocalDate currentDate) {
         return classesDays.contains(currentDate.getDayOfWeek());
     }
-    
+
 }

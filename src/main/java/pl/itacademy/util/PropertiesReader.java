@@ -22,7 +22,7 @@ public class PropertiesReader {
         }
     }
 
-    public static PropertiesReader getINSTANCE() {
+    public static PropertiesReader getInstance() {
         return INSTANCE;
     }
 

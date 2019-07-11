@@ -3,11 +3,13 @@ package pl.itacademy.generator;
 import org.junit.Before;
 import org.junit.Test;
 import pl.itacademy.parameters.InputParameters;
+import pl.itacademy.web.HolidaysWebClient;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.equalTo;
@@ -19,7 +21,8 @@ public class ScheduleGeneratorTest {
 
     @Before
     public void setUp() {
-        scheduleGenerator = new ScheduleGenerator();
+        HolidaysWebClient webClient = new HolidaysWebClientMock();
+        scheduleGenerator = new ScheduleGenerator(webClient);
     }
 
     @Test
@@ -60,5 +63,15 @@ public class ScheduleGeneratorTest {
 
         assertThat(schedule.getLessons(), containsInAnyOrder(first, second, third, fourth));
         assertThat(schedule.isLessonsFitToSchedule(), equalTo(false));
+    }
+
+    private static class HolidaysWebClientMock extends HolidaysWebClient {
+        @Override
+        public List<LocalDate> getHolidays(int year) {
+            LocalDate firstDate = LocalDate.of(year, 7, 7);
+            LocalDate secondDate = LocalDate.of(year, 8, 8);
+
+            return Arrays.asList(firstDate, secondDate);
+        }
     }
 }
