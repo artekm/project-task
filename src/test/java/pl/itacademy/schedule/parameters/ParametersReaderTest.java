@@ -1,19 +1,17 @@
 package pl.itacademy.schedule.parameters;
 
-import org.apache.commons.cli.ParseException;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import pl.itacademy.schedule.exception.IncorrectParametersException;
-
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalTime;
-
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.Assert.assertThat;
+
+import java.time.*;
+import java.time.format.DateTimeParseException;
+
+import org.apache.commons.cli.ParseException;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
+
+import pl.itacademy.schedule.exception.IncorrectParametersException;
 
 public class ParametersReaderTest {
 
@@ -110,6 +108,40 @@ public class ParametersReaderTest {
 
         assertThat(result.getFileName(), equalTo(fileName));
     }
+    
+	@Test(expected = ParseException.class)
+	public void parseArguments_throwsException_forUnknownParameter() throws Exception {
+		String commandLine = "-d monday_tuesday -b 9:00 -aaa 12:00 -s 1.01.2019 -n 47";
+		String[] args = commandLine.split(" ");
+        parametersReader.parseArguments(args);
+	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void parseArguments_throwsException_forFaultyNumber() throws Exception {
+		String commandLine = "-d monday_tuesday -b 9:00 -e 12:00 -s 1.01.2019 -n 4a7";
+		String[] args = commandLine.split(" ");
+        parametersReader.parseArguments(args);
+	}
 
+	@Test(expected = DateTimeParseException.class)
+	public void parseArguments_throwsException_forMisformatedDate() throws Exception {
+		String commandLine = "-d monday_tuesday -b 9:00 -e 12:00 -s 2019-01-09 -n 47";
+		String[] args = commandLine.split(" ");
+        parametersReader.parseArguments(args);
+	}
+
+	@Test(expected = DateTimeParseException.class)
+	public void parseArguments_throwsException_forMisformatedTime() throws Exception {
+		String commandLine = "-d monday_tuesday -b 9.00 -e 12:00 -s 1.01.2019 -n 47";
+		String[] args = commandLine.split(" ");
+        parametersReader.parseArguments(args);
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void parseArguments_throwsException_forIncorrectDays() throws Exception {
+		String commandLine = "-d monday_tusday -b 9:00 -e 12:00 -s 1.01.2019 -n 47";
+		String[] args = commandLine.split(" ");
+        parametersReader.parseArguments(args);
+	}
+	
 }
