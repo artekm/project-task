@@ -34,32 +34,4 @@ public class HolidaysWebClient {
 				.map(holiday -> LocalDate.parse(holiday, DateTimeFormatter.ISO_DATE))
 				.collect(Collectors.toList());
 	}
-
-	public List<LocalDate> getHolidaysFromEnrico(LocalDate startDate, LocalDate endDate) {
-
-		Client client = ClientBuilder.newClient();
-		PropertiesReader properties = PropertiesReader.getInstance();
-		String url = properties.readProperty("enrico.url");
-		String action = properties.readProperty("enrico.action");
-		String country = properties.readProperty("enrico.country");
-		String type = properties.readProperty("enrico.type");
-		String jsonPath = properties.readProperty("enrico.jsonPath");
-		DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern(properties.readProperty("enrico.dateFormat"));
-
-		WebTarget webTarget = client.target(url)
-				.queryParam("action", action)
-				.queryParam("country", country)
-				.queryParam("type", type)
-				.queryParam("fromDate", startDate.format(dateFormatter))
-				.queryParam("toDate", endDate.format(dateFormatter));
-
-		Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-		String json = invocationBuilder.get(String.class);
-
-		List<Map<String, Integer>> holidays = JsonPath.read(json, jsonPath);
-
-		return holidays.stream()
-				.map(holiday -> LocalDate.of(holiday.get("year"), holiday.get("month"), holiday.get("day")))
-				.collect(Collectors.toList());
-	}
 }
