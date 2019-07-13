@@ -24,7 +24,9 @@ public class ScheduleGenerator {
 		int dailyMinutes = (int) Duration.between(beginTime, endTime).toMinutes();
 		int totalMinutes = parameters.getHoursNumber() * 60;
 
-		int rawMonthEstimation = (totalMinutes / dailyMinutes) / (lessonDays.size() * 4) + 1; // 4 weeks/month, plus 1
+		int totalDays = totalMinutes / dailyMinutes;
+		int lessonDaysInMonth = lessonDays.size() * 4; //estimate 4 weeks in month
+		int rawMonthEstimation = (totalDays / lessonDaysInMonth) + 1; //always add one month for safety
 
 		Collection<LocalDate> publicHolidays = webClient.getHolidays(parameters.getStartDate(),
 				parameters.getStartDate().plusMonths(rawMonthEstimation));
