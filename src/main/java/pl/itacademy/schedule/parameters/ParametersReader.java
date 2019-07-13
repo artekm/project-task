@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
@@ -33,7 +34,7 @@ public class ParametersReader {
 		OPTIONS.addOption("h", "Show help");
 	}
 
-	public EnteredParameters parseArguments(String[] args) throws IncorrectParametersException, ParseException {
+	public EnteredParameters parseArguments(String[] args) throws IllegalArgumentException, DateTimeParseException, IncorrectParametersException, ParseException {
 		if (Objects.isNull(args)) {
 			throw new IncorrectParametersException("Arguments are null");
 		}

@@ -8,15 +8,27 @@ import java.time.format.DateTimeFormatter;
 
 public class ExcelCreator {
 
-	private Workbook workbook;
-	private CellStyle cellStyleRight;
-	private CellStyle cellStyleLeft;
-	private CellStyle cellStyleLeftBold;
-	private CellStyle cellStyleRightBold;
-
 	public Workbook createWorkbook(Schedule schedule) {
-		workbook = new XSSFWorkbook();
-		createCellStyles();
+		Workbook workbook = new XSSFWorkbook();
+
+		CellStyle cellStyleRight = workbook.createCellStyle();
+		cellStyleRight.setAlignment(HorizontalAlignment.RIGHT);
+
+		CellStyle cellStyleLeft = workbook.createCellStyle();
+		cellStyleLeft.setAlignment(HorizontalAlignment.LEFT);
+
+		CellStyle cellStyleLeftBold = workbook.createCellStyle();
+		cellStyleLeftBold.cloneStyleFrom(cellStyleLeft);
+		Font font = workbook.createFont();
+		font.setFontName("Calibri");
+		font.setFontHeightInPoints((short) 11);
+		font.setBold(true);
+		cellStyleLeftBold.setFont(font);
+
+		CellStyle cellStyleRightBold = workbook.createCellStyle();
+		cellStyleRightBold.cloneStyleFrom(cellStyleRight);
+		cellStyleRightBold.setFont(font);
+
 		Sheet sheet = workbook.createSheet("Schedule");
 
 		PropertiesReader propertiesReader = PropertiesReader.getInstance();
@@ -29,53 +41,58 @@ public class ExcelCreator {
 			setCellValue(sheet, rowNum, 0, day.getDate().format(dateFormatter), cellStyleRight);
 			setCellValue(sheet, rowNum, 3, day.getBeginTime().format(timeFormatter), cellStyleRight);
 			setCellValue(sheet, rowNum, 4, day.getEndTime().format(timeFormatter), cellStyleRight);
-
+			setCellFormula(sheet, rowNum, 5, buildOneComplexFormula(rowNum, 5), cellStyleRight);
 			rowNum++;
 		}
 
+		int lastRow = rowNum;
+		
 		setCellValue(sheet, 0, 7, "hours done", cellStyleRight);
-		setCellFormula(sheet, 0, 8, "SUM(F1:F57)", cellStyleLeft);
+		setCellFormula(sheet, 0, 8, "SUM(F1:F" + lastRow + ")", cellStyleLeft);
 
 		setCellValue(sheet, 1, 7, "hours planned", cellStyleRight);
 		setCellValue(sheet, 1, 8, schedule.getNumberOfHours(), cellStyleLeft);
 
 		setCellValue(sheet, 3, 7, "lessons done", cellStyleRight);
-		setCellFormula(sheet, 3, 8, "COUNTIF(B1:B57,\"done\")", cellStyleLeft);
+		setCellFormula(sheet, 3, 8, "COUNTIF(B1:B" + lastRow + ",\"done\")", cellStyleLeft);
 
 		setCellValue(sheet, 4, 7, "lessons planned", cellStyleRight);
 		setCellValue(sheet, 4, 8, schedule.getLessons().size(), cellStyleLeft);
 
-		setCellValue(sheet,14,7,"STATUS:",cellStyleRightBold);
-		setCellFormula(sheet,14,8,"IF(I1=I2,\"COMPLETED\",\"IN PROGRESS\")",cellStyleLeftBold);
-		
+		setCellValue(sheet, 14, 7, "STATUS:", cellStyleRightBold);
+		setCellFormula(sheet, 14, 8, "IF(I1=I2,\"COMPLETED\",\"IN PROGRESS\")", cellStyleLeftBold);
+
 		sheet.autoSizeColumn(0);
 		sheet.autoSizeColumn(3);
 		sheet.autoSizeColumn(4);
 		sheet.autoSizeColumn(7);
-		sheet.autoSizeColumn(8);
-		
+
 		return workbook;
 	}
 
+	private String buildOneComplexFormula(int row, int column) {
+		return String.format("IF(B%d=\"done\",HOUR(E%<d-D%<d) + MINUTE(E%<d-D%<d)/60,\"\")", row + 1);
+	}
+
 	private void setCellValue(Sheet sheet, int row, int column, String value, CellStyle style) {
-		Cell cell = getOrCreateRowAndCell(sheet, row, column);
+		Cell cell = makeSureCellExistsAndGetIt(sheet, row, column);
 		cell.setCellValue(value);
 		cell.setCellStyle(style);
 	}
 
 	private void setCellValue(Sheet sheet, int row, int column, int value, CellStyle style) {
-		Cell cell = getOrCreateRowAndCell(sheet, row, column);
+		Cell cell = makeSureCellExistsAndGetIt(sheet, row, column);
 		cell.setCellValue(value);
 		cell.setCellStyle(style);
 	}
 
 	private void setCellFormula(Sheet sheet, int row, int column, String formula, CellStyle style) {
-		Cell cell = getOrCreateRowAndCell(sheet, row, column);
+		Cell cell = makeSureCellExistsAndGetIt(sheet, row, column);
 		cell.setCellFormula(formula);
 		cell.setCellStyle(style);
 	}
 
-	private Cell getOrCreateRowAndCell(Sheet sheet, int rowNumber, int columnNumber) {
+	private Cell makeSureCellExistsAndGetIt(Sheet sheet, int rowNumber, int columnNumber) {
 		Row row = getOrCreateRow(sheet, rowNumber);
 		Cell cell = getOrCreateCell(row, columnNumber);
 		return cell;
@@ -93,26 +110,5 @@ public class ExcelCreator {
 		if (cell == null)
 			cell = row.createCell(columnNumber);
 		return cell;
-	}
-
-	private void createCellStyles() {
-		cellStyleRight = workbook.createCellStyle();
-		cellStyleRight.setAlignment(HorizontalAlignment.RIGHT);
-		
-		cellStyleLeft = workbook.createCellStyle();
-		cellStyleLeft.setAlignment(HorizontalAlignment.LEFT);
-		
-		cellStyleLeftBold = workbook.createCellStyle();
-		cellStyleLeftBold.cloneStyleFrom(cellStyleLeft);
-		Font font = workbook.createFont();
-		font.setFontName("Calibri");
-		font.setFontHeightInPoints((short)11);
-		font.setBold(true);
-		cellStyleLeftBold.setFont(font);
-		
-		cellStyleRightBold = workbook.createCellStyle();
-		cellStyleRightBold.cloneStyleFrom(cellStyleRight);
-		cellStyleRightBold.setFont(font);
-	
 	}
 }
