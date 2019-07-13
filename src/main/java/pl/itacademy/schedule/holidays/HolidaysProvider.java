@@ -5,5 +5,5 @@ import java.util.Collection;
 
 public interface HolidaysProvider {
 
-	public abstract Collection<LocalDate> getHolidays(LocalDate from, LocalDate to);
+	Collection<LocalDate> getHolidays(LocalDate from, LocalDate to);
 }
