@@ -46,7 +46,7 @@ public class ExcelCreator {
 		}
 
 		int lastRow = rowNum;
-		
+
 		setCellValue(sheet, 0, 7, "hours done", cellStyleRight);
 		setCellFormula(sheet, 0, 8, "SUM(F1:F" + lastRow + ")", cellStyleLeft);
 
@@ -59,8 +59,9 @@ public class ExcelCreator {
 		setCellValue(sheet, 4, 7, "lessons planned", cellStyleRight);
 		setCellValue(sheet, 4, 8, schedule.getLessons().size(), cellStyleLeft);
 
-		setCellValue(sheet, 14, 7, "STATUS:", cellStyleRightBold);
-		setCellFormula(sheet, 14, 8, "IF(I1=I2,\"COMPLETED\",\"IN PROGRESS\")", cellStyleLeftBold);
+		int statusRow = lastRow > 6 ? lastRow -1 : 6;
+		setCellValue(sheet, statusRow, 7, "STATUS:", cellStyleRightBold);
+		setCellFormula(sheet, statusRow, 8, "IF(I1=I2,\"COMPLETED\",\"IN PROGRESS\")", cellStyleLeftBold);
 
 		sheet.autoSizeColumn(0);
 		sheet.autoSizeColumn(3);
