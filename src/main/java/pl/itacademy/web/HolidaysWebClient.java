@@ -28,6 +28,11 @@ public class HolidaysWebClient {
     }
 
     public List<LocalDate> getHolidays(int year) {
+        try {
+            Thread.sleep(1100);
+        } catch (InterruptedException ignore) {
+        }
+
         PropertiesReader propertiesReader = PropertiesReader.getInstance();
         String url = propertiesReader.readProperty("calendarific.url");
         String path = propertiesReader.readProperty("calendarific.path");
@@ -53,6 +58,5 @@ public class HolidaysWebClient {
         return holidays.stream()
                 .map(value -> LocalDate.parse((String) value, DateTimeFormatter.ISO_DATE))
                 .collect(Collectors.toList());
-
     }
 }

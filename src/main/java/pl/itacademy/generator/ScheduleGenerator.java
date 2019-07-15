@@ -8,16 +8,20 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public class ScheduleGenerator {
 
     private HolidaysWebClient webClient;
+    private List<LocalDate> holidays;
 
     public ScheduleGenerator(HolidaysWebClient webClient) {
         this.webClient = webClient;
     }
 
     public Schedule generate(InputParameters parameters) {
+        holidays = webClient.getHolidays(parameters.getStartDate().getYear());
+
         long requiredTime = parameters.getHoursNumber() * 60;
         long lessonDuration = Duration.between(parameters.getBeginTime(), parameters.getEndTime()).toMinutes();
         Collection<Lesson> lessons = new ArrayList<>();
@@ -40,10 +44,23 @@ public class ScheduleGenerator {
     }
 
     private LocalDate getNextDay(LocalDate startDate, Collection<DayOfWeek> classesDays) {
-        while (isNotRequiredDayOfWeek(classesDays, startDate)) {
+        int currentYear = startDate.getYear();
+        while (isNotRequiredDayOfWeek(classesDays, startDate) || isHoliday(startDate)) {
             startDate = startDate.plusDays(1);
+            if (startDate.getYear() != currentYear) {
+                currentYear++;
+                updateHolidays(currentYear);
+            }
         }
         return startDate;
+    }
+
+    private void updateHolidays(int year) {
+        holidays = webClient.getHolidays(year);
+    }
+
+    private boolean isHoliday(LocalDate date) {
+        return holidays.contains(date);
     }
 
     private boolean isNotRequiredDayOfWeek(Collection<DayOfWeek> classesDays, LocalDate currentDate) {

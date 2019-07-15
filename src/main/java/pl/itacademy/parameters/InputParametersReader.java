@@ -1,6 +1,7 @@
 package pl.itacademy.parameters;
 
 import org.apache.commons.cli.*;
+import pl.itacademy.util.PropertiesReader;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -11,11 +12,15 @@ import java.util.Collection;
 
 public class InputParametersReader {
 
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.uuuu");
+    private static final PropertiesReader PROPERTIES_READER = PropertiesReader.getInstance();
 
-    public InputParameters readParameters(String[] args) throws ParseException {
-        InputParameters inputParameters = new InputParameters();
-        Options options = new Options();
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern(PROPERTIES_READER.readProperty("dateFormat"));
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern(PROPERTIES_READER.readProperty("timeFormat"));
+
+    private Options options;
+
+    public InputParametersReader() {
+        options = new Options();
         options.addOption("d", true, "Lessons days of week");
         options.addOption("n", true, "Number Hours");
         options.addOption("b", true, "Begin Time");
@@ -23,6 +28,10 @@ public class InputParametersReader {
         options.addOption("s", true, "Start Date");
         options.addOption("f", true, "File Name");
         options.addOption("h", "Show Help");
+    }
+
+    public InputParameters readParameters(String[] args) throws ParseException {
+        InputParameters inputParameters = new InputParameters();
 
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
@@ -42,11 +51,11 @@ public class InputParametersReader {
         }
         if (cmd.hasOption("b")) {
             String beginTime = cmd.getOptionValue("b");
-            inputParameters.setBeginTime(LocalTime.parse(beginTime));
+            inputParameters.setBeginTime(LocalTime.parse(beginTime, TIME_FORMAT));
         }
         if (cmd.hasOption("e")) {
             String endTime = cmd.getOptionValue("e");
-            inputParameters.setEndTime(LocalTime.parse(endTime));
+            inputParameters.setEndTime(LocalTime.parse(endTime, TIME_FORMAT));
         }
         if (cmd.hasOption("s")) {
             String startDate = cmd.getOptionValue("s");
@@ -60,5 +69,10 @@ public class InputParametersReader {
         inputParameters.setShowHelp(cmd.hasOption("h"));
 
         return inputParameters;
+    }
+
+    public void showHelp() {
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("-b 17:00 -d Monday_Thursday -e 18:30 [-f file.xlsx] [-h] -n 20 -s 01.09.2019", options);
     }
 }

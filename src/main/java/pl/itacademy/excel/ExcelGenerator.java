@@ -4,6 +4,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import pl.itacademy.generator.Lesson;
 import pl.itacademy.generator.Schedule;
+import pl.itacademy.util.PropertiesReader;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -11,7 +12,11 @@ import java.util.Collection;
 import java.util.Date;
 
 public class ExcelGenerator {
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
+    private static final PropertiesReader PROPERTIES_READER = PropertiesReader.getInstance();
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern(PROPERTIES_READER.readProperty("timeFormat"));
+    private static final String DATE_FORMATTER = PROPERTIES_READER.readProperty("dateFormat");
+    private static final String EXCEL_TIME_FORMATTER = PROPERTIES_READER.readProperty("excel.timeFormat");
 
     public Workbook createScheduleWorkbook(Schedule schedule) {
         Workbook workbook = new XSSFWorkbook();
@@ -22,12 +27,12 @@ public class ExcelGenerator {
         CellStyle arialStyle = workbook.createCellStyle();
         arialStyle.setFont(arialFont);
 
-        short dateFormat = workbook.createDataFormat().getFormat("dd.MM.yyyy");
+        short dateFormat = workbook.createDataFormat().getFormat(DATE_FORMATTER);
         CellStyle dateStyle = workbook.createCellStyle();
         dateStyle.setDataFormat(dateFormat);
         dateStyle.setFont(arialFont);
 
-        short timeFormat = workbook.createDataFormat().getFormat("[h]:mm");
+        short timeFormat = workbook.createDataFormat().getFormat(EXCEL_TIME_FORMATTER);
         CellStyle timeStyle = workbook.createCellStyle();
         timeStyle.setDataFormat(timeFormat);
         timeStyle.setFont(arialFont);
@@ -54,12 +59,12 @@ public class ExcelGenerator {
             doneCell.setCellStyle(arialStyle);
 
             Cell beginTime = row.createCell(3);
-            String time = lesson.getBeginTime().format(FORMATTER);
+            String time = lesson.getBeginTime().format(TIME_FORMATTER);
             beginTime.setCellValue(DateUtil.convertTime(time));
             beginTime.setCellStyle(timeStyle);
 
             Cell endTime = row.createCell(4);
-            time = lesson.getEndTime().format(FORMATTER);
+            time = lesson.getEndTime().format(TIME_FORMATTER);
             endTime.setCellValue(DateUtil.convertTime(time));
             endTime.setCellStyle(timeStyle);
 
@@ -82,7 +87,6 @@ public class ExcelGenerator {
         hoursDoneValueCell.setCellFormula("SUM(F1:F57)");
         hoursDoneValueCell.setCellStyle(arialStyle);
 
-
         Row hoursPlannedRow;
         if ((hoursPlannedRow = sheet.getRow(1)) == null) {
             hoursPlannedRow = sheet.createRow(1);
@@ -94,7 +98,6 @@ public class ExcelGenerator {
         Cell hoursPlannedValueCell = hoursPlannedRow.createCell(8);
         hoursPlannedValueCell.setCellValue(schedule.getHoursPlanned());
         hoursPlannedValueCell.setCellStyle(arialStyle);
-
 
         Row lessonsDoneRow;
         if ((lessonsDoneRow = sheet.getRow(3)) == null) {
@@ -108,7 +111,6 @@ public class ExcelGenerator {
         lessonsDoneValueCell.setCellFormula("COUNTIF(B1:B57,\"done\")");
         lessonsDoneValueCell.setCellStyle(arialStyle);
 
-
         Row lessonsPlannedRow;
         if ((lessonsPlannedRow = sheet.getRow(4)) == null) {
             lessonsPlannedRow = sheet.createRow(4);
@@ -121,7 +123,6 @@ public class ExcelGenerator {
         lessonsPlannedValueCell1.setCellValue(lessons.size());
         lessonsPlannedValueCell1.setCellStyle(arialStyle);
 
-
         Row statusRow = lessons.size() < 5 ? sheet.createRow(5) : sheet.createRow(lessons.size());
 
         Cell statusTextCell = statusRow.createCell(7);
@@ -131,7 +132,7 @@ public class ExcelGenerator {
         statusValueCell.setCellFormula("IF(I1=I2,\"COMPLETED\",\"IN PROGRESS\")");
         statusValueCell.setCellStyle(statusStyle);
 
-        for (int col=0; col < 8; col++) {
+        for (int col = 0; col < 8; col++) {
             sheet.autoSizeColumn(col);
         }
 
