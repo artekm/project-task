@@ -36,12 +36,12 @@ public class ScheduleGeneratorApp {
 			}
 			ParametersValidator validator = new ParametersValidator();
 			validator.validate(enteredParameters);
-		} catch (IncorrectParametersException | ParseException | DateTimeParseException e) {
-			System.out.println(e.getMessage());
+		} catch (NumberFormatException e) {
+			System.out.println("Impossible to read number " + e.getMessage());
 			usagePrinter.printHelp();
 			return;
-		} catch (IllegalArgumentException e) {
-			System.out.println("Impossible to read number " + e.getMessage());
+		} catch (IncorrectParametersException | ParseException | DateTimeParseException | IllegalArgumentException e) {
+			System.out.println(e.getMessage());
 			usagePrinter.printHelp();
 			return;
 		}
