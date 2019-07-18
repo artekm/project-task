@@ -28,10 +28,12 @@ public class ScheduleGeneratorApp {
         try {
             inputParameters = inputParametersReader.readParameters(args);
         } catch (ParseException e) {
-            System.out.println("You entered wrong parameters!\nWrite [-h] to show help.");
+            System.out.println("You entered wrong parameters: " + e.getMessage());
+            inputParametersReader.showHelp();
             return;
         } catch (IllegalArgumentException e) {
-            System.out.println("You entered wrong day name!\nWrite [-h] to show help.");
+            System.out.println("You entered wrong day name: " + e.getMessage());
+            inputParametersReader.showHelp();
             return;
         }
 
@@ -45,6 +47,7 @@ public class ScheduleGeneratorApp {
             parametersValidator.validate(inputParameters);
         } catch (InvalidParameterException e) {
             System.out.println("Error:\n" + e.getMessage());
+            inputParametersReader.showHelp();
             return;
         }
 
@@ -53,15 +56,20 @@ public class ScheduleGeneratorApp {
         Schedule schedule = scheduleGenerator.generate(inputParameters);
 
         ExcelGenerator excelGenerator = new ExcelGenerator();
-        Workbook workbook = excelGenerator.createScheduleWorkbook(schedule);
-
-        OutputStream outputStream = Files.newOutputStream(Paths.get("C:\\1\\" + inputParameters.getFileName() + ".xlsx"));
-        workbook.write(outputStream);
-        outputStream.close();
-        workbook.close();
+        try(Workbook workbook = excelGenerator.createScheduleWorkbook(schedule);
+            OutputStream outputStream = Files.newOutputStream(Paths.get(inputParameters.getFileName()))) {
+            workbook.write(outputStream);
+            outputStream.close();
+            workbook.close();
+        } catch (IOException e) {
+            System.out.println("Can't write workbook to file: " + inputParameters.getFileName());
+            System.out.println(e.getMessage());
+            return;
+        }
 
         if (!schedule.isLessonsFitToSchedule()) {
-            Path path = Paths.get("C:\\1\\warning.txt");
+            Path parentPath = Paths.get(inputParameters.getFileName()).getParent();
+            Path path = Paths.get(parentPath.toString(), "warning.txt");
             List<String> warning = Arrays.asList("WARNING!", "Lessons hours doesn't fit lesson begin time and end time.", "Last lesson duration was reduced.");
             Files.write(path, warning, StandardCharsets.UTF_8);
             System.out.println("Warning file was created at -> " + path.toString());

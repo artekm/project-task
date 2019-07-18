@@ -17,16 +17,6 @@ import java.util.stream.Collectors;
 
 public class HolidaysWebClient {
 
-    public static void main(String[] args) throws InterruptedException {
-        HolidaysWebClient client = new HolidaysWebClient();
-        List<LocalDate> holidays19 = client.getHolidays(2019);
-        Thread.sleep(1100);
-        List<LocalDate> holidays20 = client.getHolidays(2020);
-
-        System.out.println(holidays19);
-        System.out.println(holidays20);
-    }
-
     public List<LocalDate> getHolidays(int year) {
         try {
             Thread.sleep(1100);

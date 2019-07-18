@@ -15,7 +15,7 @@ public class ExcelGenerator {
 
     private static final PropertiesReader PROPERTIES_READER = PropertiesReader.getInstance();
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern(PROPERTIES_READER.readProperty("timeFormat"));
-    private static final String DATE_FORMATTER = PROPERTIES_READER.readProperty("dateFormat");
+    private static final String DATE_FORMATTER = PROPERTIES_READER.readProperty("excel.dateFormat");
     private static final String EXCEL_TIME_FORMATTER = PROPERTIES_READER.readProperty("excel.timeFormat");
 
     public Workbook createScheduleWorkbook(Schedule schedule) {
