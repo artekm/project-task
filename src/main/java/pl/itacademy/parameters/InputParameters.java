@@ -1,5 +1,7 @@
 package pl.itacademy.parameters;
 
+import pl.itacademy.util.PropertiesReader;
+
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -19,6 +21,10 @@ public class InputParameters {
     private boolean showHelp;
 
     private String fileName;
+
+    public InputParameters() {
+        fileName = PropertiesReader.getInstance().readProperty("excel.defaultName");
+    }
 
     public boolean isShowHelp() {
         return showHelp;
