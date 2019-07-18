@@ -72,12 +72,14 @@ public class ParametersReader {
 		}
 
 		if (cmd.hasOption("d")) {
-			String[] days = cmd.getOptionValue("d").toUpperCase().split("_");
+//			String[] days = cmd.getOptionValue("d").toUpperCase().split("_");
+//
+//			Collection<DayOfWeek> daysOfWeek = Arrays.stream(days)
+//					.map(DayOfWeek::valueOf)
+//					.collect(Collectors.toList());
 
-			Collection<DayOfWeek> daysOfWeek = Arrays.stream(days)
-					.map(DayOfWeek::valueOf)
-					.collect(Collectors.toList());
-
+			Collection<DayOfWeek> daysOfWeek = DaysParser.getDaysSetByAcronyms(cmd.getOptionValue("d"));
+			
 			enteredParameters.setLessonDays(daysOfWeek);
 		}
 
