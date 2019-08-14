@@ -5,10 +5,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -88,7 +86,7 @@ public class ParametersReader {
 		return enteredParameters;
 	}
 
-	public static class UsagePrinter {
+	public class UsagePrinter {
 		public void printHelp() {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("java -jar Scheduler.jar -d <daysOfWeek> -b <beginTime> -e <endTime> -s <startDate> -n <numberOfHours> [-f <fileName>] [-h]", OPTIONS);

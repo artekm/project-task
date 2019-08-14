@@ -6,6 +6,7 @@ import pl.itacademy.schedule.exception.IncorrectParametersException;
 import pl.itacademy.schedule.generator.ExcelCreator;
 import pl.itacademy.schedule.generator.Schedule;
 import pl.itacademy.schedule.generator.ScheduleGenerator;
+import pl.itacademy.schedule.gui.GUI;
 import pl.itacademy.schedule.holidays.HolidaysProvider;
 import pl.itacademy.schedule.holidays.HolidaysProviderFactory;
 import pl.itacademy.schedule.parameters.EnteredParameters;
@@ -13,6 +14,7 @@ import pl.itacademy.schedule.parameters.ParametersReader;
 import pl.itacademy.schedule.parameters.ParametersValidator;
 import pl.itacademy.schedule.util.PropertiesReader;
 
+import java.awt.EventQueue;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -25,8 +27,12 @@ public class ScheduleGeneratorApp {
 
 	public static void main(String[] args) {
 
-		ParametersReader.UsagePrinter usagePrinter = new ParametersReader.UsagePrinter();
+		if (args.length==0) {
+			EventQueue.invokeLater(() -> new GUI().runGUI());
+			return;
+		}
 		ParametersReader parametersReader = new ParametersReader();
+		ParametersReader.UsagePrinter usagePrinter = parametersReader.new UsagePrinter();
 		EnteredParameters enteredParameters;
 		try {
 			enteredParameters = parametersReader.parseArguments(args);
