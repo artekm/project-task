@@ -21,7 +21,6 @@ import java.util.Calendar;
 import java.util.EnumSet;
 import java.util.Locale;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
@@ -63,7 +62,7 @@ public class GUI {
 
 	private String[] hours;
 
-	private static final String[] COLUMNS = { "Lesson", "Date", "Day of week", "Begin time", "End time" };
+	private static final String[] COLUMNS = { "Date", "Day of week", "Begin time", "End time" };
 
 	public static final Color ODD_ROW_COLOR = Color.decode("#F0F0F0");
 	public static final Color EVEN_ROW_COLOR = Color.WHITE;
@@ -75,10 +74,9 @@ public class GUI {
 		PropertiesReader props = PropertiesReader.getInstance();
 		dateFormatter = DateTimeFormatter.ofPattern(props.readProperty("dateFormat"));
 		timeFormatter = DateTimeFormatter.ofPattern(props.readProperty("timeFormat"));
-		hours = Stream.iterate(LocalTime.of(6, 0), lt -> lt.isBefore(LocalTime.of(22, 30)), lt -> lt.plusMinutes(30))
+		hours = Stream.iterate(LocalTime.of(06, 00), lt -> !lt.isAfter(LocalTime.of(22, 00)), lt -> lt.plusMinutes(30))
 				.map(lt -> lt.format(timeFormatter))
-				.collect(Collectors.toList())
-				.toArray(new String[0]);
+				.toArray(String[]::new);
 	}
 
 	@SuppressWarnings("serial")
@@ -127,8 +125,8 @@ public class GUI {
 						if (value == null)
 							return "";
 						LocalDate date = ((Calendar) value).getTime()
-														.toInstant().atZone(ZoneId.systemDefault())
-														.toLocalDate();
+								.toInstant().atZone(ZoneId.systemDefault())
+								.toLocalDate();
 						return dateFormatter.format(date);
 					}
 				});
@@ -162,6 +160,9 @@ public class GUI {
 		JScrollPane scrollPane = new JScrollPane(tabSchedule);
 		scrollPane.setBorder(BorderFactory.createTitledBorder("Schedule"));
 		scrollPane.setEnabled(false);
+		JTable rowTable = new RowNumberTable(tabSchedule);
+		scrollPane.setRowHeaderView(rowTable);
+		scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, rowTable.getTableHeader());
 
 		frame.add(panelBox, new GBC(0, 0, 1, 4).setFill(GBC.HORIZONTAL).setWeight(0, 0));
 		frame.add(datePicker, new GBC(0, 4, 1, 1).setFill(GBC.HORIZONTAL).setWeight(0, 100));
@@ -182,17 +183,12 @@ public class GUI {
 		Consumer<ActionEvent> inputVerifier = (event) -> {
 			boolean anyChecked = Arrays.stream(panelBox.getComponents())
 					.map(c -> ((JCheckBox) c).isSelected())
-					.reduce(false, (a, b) -> a || b);
-			if (!anyChecked || (datePicker.getModel().getValue() == null)
-					|| (cbxBeginHour.getSelectedItem() == null)
-					|| (cbxEndHour.getSelectedItem() == null))
-				btnGenerate.setEnabled(false);
-			else
-				btnGenerate.setEnabled(true);
-			if (tabSchedule.getRowCount() > 0)
-				btnSave.setEnabled(true);
-			else
-				btnSave.setEnabled(false);
+					.reduce(false, Boolean::logicalOr);
+			btnGenerate.setEnabled(anyChecked
+					&& (datePicker.getModel().getValue() != null)
+					&& (cbxBeginHour.getSelectedItem() != null)
+					&& (cbxEndHour.getSelectedItem() != null));
+			btnSave.setEnabled(tabSchedule.getRowCount() > 0);
 		};
 
 		for (Component cb : panelBox.getComponents())
@@ -244,15 +240,14 @@ public class GUI {
 					app.generateSchedule(false);
 					app.generateExcel();
 					Schedule schedule = app.getSchedule();
-					
-					Object[][] data = new Object[schedule.getLessons().size()][5];
+
+					Object[][] data = new Object[schedule.getLessons().size()][COLUMNS.length];
 					int row = 0;
 					for (Lesson lesson : schedule.getLessons()) {
-						data[row][0] = row + 1;
-						data[row][1] = lesson.getDate().format(dateFormatter);
-						data[row][2] = lesson.getDate().getDayOfWeek().toString().toLowerCase();
-						data[row][3] = lesson.getBeginTime().format(timeFormatter);
-						data[row][4] = lesson.getEndTime().format(timeFormatter);
+						data[row][0] = lesson.getDate().format(dateFormatter);
+						data[row][1] = lesson.getDate().getDayOfWeek().toString().toLowerCase();
+						data[row][2] = lesson.getBeginTime().format(timeFormatter);
+						data[row][3] = lesson.getEndTime().format(timeFormatter);
 						row++;
 					}
 					((DefaultTableModel) tabSchedule.getModel()).setDataVector(data, COLUMNS);
