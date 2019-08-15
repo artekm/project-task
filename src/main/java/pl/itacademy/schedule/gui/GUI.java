@@ -160,10 +160,8 @@ public class GUI {
 		JScrollPane scrollPane = new JScrollPane(tabSchedule);
 		scrollPane.setBorder(BorderFactory.createTitledBorder("Schedule"));
 		scrollPane.setEnabled(false);
-		JTable rowTable = new RowNumberTable(tabSchedule);
-		scrollPane.setRowHeaderView(rowTable);
-		scrollPane.setCorner(JScrollPane.UPPER_LEFT_CORNER, rowTable.getTableHeader());
-
+		TableRowUtilities.addNumberColumn(tabSchedule, 1, true);
+		
 		frame.add(panelBox, new GBC(0, 0, 1, 4).setFill(GBC.HORIZONTAL).setWeight(0, 0));
 		frame.add(datePicker, new GBC(0, 4, 1, 1).setFill(GBC.HORIZONTAL).setWeight(0, 100));
 		frame.add(cbxBeginHour, new GBC(0, 5, 1, 1).setFill(GBC.HORIZONTAL).setWeight(0, 100));
