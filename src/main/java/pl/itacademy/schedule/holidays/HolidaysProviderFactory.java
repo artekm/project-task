@@ -4,7 +4,7 @@ import pl.itacademy.schedule.util.PropertiesReader;
 
 public class HolidaysProviderFactory {
 
-	public static HolidaysProvider getProvider() {
+	public static HolidaysProvider getProvider(boolean verbose) {
 		PropertiesReader properties = PropertiesReader.getInstance();
 		String provider = properties.readProperty("holidaysProvider");
 
@@ -16,10 +16,12 @@ public class HolidaysProviderFactory {
 		try {
 			webClient = (HolidaysProvider) Class.forName(className).getConstructor().newInstance();
 		} catch (Exception e) {
-			System.out.println("Class " + className + " not found");
+			if (verbose)
+				System.out.println("Class " + className + " not found");
 			webClient = new HolidaysNone();
 		}
-		System.out.println("Using " + webClient.getClass().getName());
+		if (verbose)
+			System.out.println("Using " + webClient.getClass().getName());
 		return webClient;
 	}
 }

@@ -54,9 +54,9 @@ public class ScheduleGeneratorApp {
 		}
 
 		if (readParameters(args)) {
-			generateSchedule();
+			generateSchedule(true);
 			generateExcel();
-			saveExcelToFile(null);
+			saveExcelToFile(null,true);
 		}
 	}
 
@@ -88,8 +88,8 @@ public class ScheduleGeneratorApp {
 		return true;
 	}
 
-	public boolean generateSchedule() {
-		HolidaysProvider webClient = HolidaysProviderFactory.getProvider();
+	public boolean generateSchedule(boolean verbose) {
+		HolidaysProvider webClient = HolidaysProviderFactory.getProvider(verbose);
 
 		ScheduleGenerator scheduleGenerator = new ScheduleGenerator(webClient);
 		schedule = scheduleGenerator.generate(parameters);
@@ -102,7 +102,7 @@ public class ScheduleGeneratorApp {
 		return true;
 	}
 
-	public boolean saveExcelToFile(String file) {
+	public boolean saveExcelToFile(String file,boolean verbose) {
 		String fileName;
 		if (file != null) {
 			fileName = file;
@@ -119,14 +119,17 @@ public class ScheduleGeneratorApp {
 		}
 		try (OutputStream stream = new FileOutputStream(fileName)) {
 			workbook.write(stream);
-			System.out.println("Successfully saved the schedule to file " + fileName);
+			if (verbose)
+				System.out.println("Successfully saved the schedule to file " + fileName);
 		} catch (IOException e) {
-			System.out.println("Impossible to write schedule workbook.");
+			if (verbose)
+				System.out.println("Impossible to write schedule workbook.");
 			return false;
 		}
 
 		if (schedule.isLastDayShorter()) {
-			System.out.println(WARNING_MESSAGE);
+			if (verbose)
+				System.out.println(WARNING_MESSAGE);
 			try {
 				String shortName = fileName.substring(0, fileName.lastIndexOf("."));
 				Files.write(Paths.get(shortName + "-warning.txt"), WARNING_MESSAGE.getBytes());

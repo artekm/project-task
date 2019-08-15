@@ -16,7 +16,7 @@ public class HolidaysProviderFactoryTest {
 	public void getProvider_returnsProviderStatedInPropertiesFile() {
 		PropertiesReader properties = PropertiesReader.getInstance();
 		String providerNameFromProperties = properties.readProperty("holidaysProvider");
-		HolidaysProvider providerFromFactory = HolidaysProviderFactory.getProvider();
+		HolidaysProvider providerFromFactory = HolidaysProviderFactory.getProvider(true);
 		assertEquals(providerNameFromProperties, providerFromFactory.getClass().getSimpleName());
 	}
 
@@ -26,7 +26,7 @@ public class HolidaysProviderFactoryTest {
 		hideFile("./application.properties");
 		PropertiesReader reader = PropertiesReader.getInstance();
 		reader.readApplicationProperties();
-		HolidaysProvider providerFromFactory = HolidaysProviderFactory.getProvider();
+		HolidaysProvider providerFromFactory = HolidaysProviderFactory.getProvider(true);
 		assertEquals("HolidaysNone", providerFromFactory.getClass().getSimpleName());
 		showFile("./config/application.properties");
 		showFile("./application.properties");

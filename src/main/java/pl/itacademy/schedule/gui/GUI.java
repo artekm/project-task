@@ -1,5 +1,7 @@
 package pl.itacademy.schedule.gui;
 
+import java.awt.Color;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagLayout;
@@ -28,6 +30,7 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFormattedTextField.AbstractFormatter;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -36,6 +39,7 @@ import javax.swing.JTable;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -59,11 +63,13 @@ public class GUI {
 			"09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
 			"15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00",
 			"20:30", "21:00", "21:30", "22:00" };
+	private String[] hours;
 
 	private static final String[] COLUMNS = { "Lesson", "Date", "Day of week", "Begin time", "End time" };
 
-	private String[] hours;
-//	private Schedule schedule;
+	public static final Color ODD_ROW_COLOR = Color.decode("#F0F0F0");
+	public static final Color EVEN_ROW_COLOR = Color.WHITE;
+
 	private ScheduleGeneratorApp app;
 
 	public GUI(ScheduleGeneratorApp app) {
@@ -158,6 +164,10 @@ public class GUI {
 			@Override
 			public TableCellRenderer getCellRenderer(int arg0, int arg1) {
 				renderRight.setHorizontalAlignment(SwingConstants.RIGHT);
+				if (arg0 % 2 == 0)
+					renderRight.setBackground(EVEN_ROW_COLOR);
+				else
+					renderRight.setBackground(ODD_ROW_COLOR);
 				return renderRight;
 			}
 		};
@@ -178,6 +188,11 @@ public class GUI {
 		frame.add(btnSave, new GBC(0, 10, 1, 1).setFill(GBC.HORIZONTAL).setInsets(2).setWeight(0, 100));
 		frame.add(btnEnd, new GBC(0, 11, 1, 1).setFill(GBC.HORIZONTAL).setInsets(2).setWeight(0, 100));
 		frame.add(scrollPane, new GBC(1, 0, 1, 12).setWeight(100, 0).setFill(GBC.BOTH));
+
+		JOptionPane pane = new JOptionPane(new JLabel("Generating schedule  - please wait"),
+				JOptionPane.INFORMATION_MESSAGE);
+		JDialog dlgScheduling = pane.createDialog(frame, "Scheduler");
+		dlgScheduling.setModalityType(Dialog.ModalityType.MODELESS);
 
 		Consumer<ActionEvent> inputVerifier = (event) -> {
 			if ((!cbMon.isSelected() && !cbTue.isSelected() && !cbWed.isSelected() && !cbThu.isSelected() &&
@@ -255,22 +270,33 @@ public class GUI {
 				return;
 			}
 
-			app.setParameters(parameters);
-			app.generateSchedule();
+			SwingWorker<Void, Void> otherT = new SwingWorker<Void, Void>() {
 
-			Schedule schedule = app.getSchedule();
-			Object[][] data = new Object[schedule.getLessons().size()][5];
+				@Override
+				protected Void doInBackground() throws Exception {
+					dlgScheduling.setVisible(true);
+					app.setParameters(parameters);
+					app.generateSchedule(false);
+					app.generateExcel();
+					Schedule schedule = app.getSchedule();
+					Object[][] data = new Object[schedule.getLessons().size()][5];
 
-			int row = 0;
-			for (Lesson lesson : schedule.getLessons()) {
-				data[row][0] = row + 1;
-				data[row][1] = lesson.getDate().format(dateFormatter);
-				data[row][2] = lesson.getDate().getDayOfWeek().toString().toLowerCase();
-				data[row][3] = lesson.getBeginTime().format(timeFormatter);
-				data[row][4] = lesson.getEndTime().format(timeFormatter);
-				row++;
-			}
-			((DefaultTableModel) tabSchedule.getModel()).setDataVector(data, COLUMNS);
+					int row = 0;
+					for (Lesson lesson : schedule.getLessons()) {
+						data[row][0] = row + 1;
+						data[row][1] = lesson.getDate().format(dateFormatter);
+						data[row][2] = lesson.getDate().getDayOfWeek().toString().toLowerCase();
+						data[row][3] = lesson.getBeginTime().format(timeFormatter);
+						data[row][4] = lesson.getEndTime().format(timeFormatter);
+						row++;
+					}
+					((DefaultTableModel) tabSchedule.getModel()).setDataVector(data, COLUMNS);
+					dlgScheduling.setVisible(false);
+					return null;
+				}
+			};
+			otherT.execute();
+
 			scrollPane.setEnabled(true);
 			btnSave.setEnabled(true);
 		});
@@ -287,8 +313,7 @@ public class GUI {
 				return;
 			String newName = chooser.getSelectedFile().toString();
 
-			app.generateExcel();
-			app.saveExcelToFile(newName);
+			app.saveExcelToFile(newName,false);
 		});
 
 		btnEnd.addActionListener(event -> SwingUtilities.getWindowAncestor(btnEnd).dispose());
