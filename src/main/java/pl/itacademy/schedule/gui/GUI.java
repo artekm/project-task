@@ -1,6 +1,7 @@
 package pl.itacademy.schedule.gui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -21,6 +22,7 @@ import java.util.EnumSet;
 import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -59,10 +61,6 @@ public class GUI {
 	private DateTimeFormatter timeFormatter;
 	private DateTimeFormatter dateFormatter;
 
-	private static final String[] HOURS_IN = { "06:00", "06:30", "07:00", "07:30", "08:00", "08:30", "09:00",
-			"09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00", "14:30",
-			"15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00", "18:30", "19:00", "19:30", "20:00",
-			"20:30", "21:00", "21:30", "22:00" };
 	private String[] hours;
 
 	private static final String[] COLUMNS = { "Lesson", "Date", "Day of week", "Begin time", "End time" };
@@ -77,7 +75,9 @@ public class GUI {
 		PropertiesReader props = PropertiesReader.getInstance();
 		dateFormatter = DateTimeFormatter.ofPattern(props.readProperty("dateFormat"));
 		timeFormatter = DateTimeFormatter.ofPattern(props.readProperty("timeFormat"));
-		hours = Arrays.stream(HOURS_IN).map(s -> LocalTime.parse(s).format(timeFormatter)).collect(Collectors.toList())
+		hours = Stream.iterate(LocalTime.of(6, 0), lt -> lt.isBefore(LocalTime.of(22, 30)), lt -> lt.plusMinutes(30))
+				.map(lt -> lt.format(timeFormatter))
+				.collect(Collectors.toList())
 				.toArray(new String[0]);
 	}
 
@@ -95,23 +95,10 @@ public class GUI {
 		frame.setLayout(new GridBagLayout());
 		frame.setPreferredSize(new Dimension(900, 500));
 
-		JCheckBox cbMon = new JCheckBox("Monday");
-		JCheckBox cbTue = new JCheckBox("Tuesday");
-		JCheckBox cbWed = new JCheckBox("Wednesday");
-		JCheckBox cbThu = new JCheckBox("Thursday");
-		JCheckBox cbFri = new JCheckBox("Friday");
-		JCheckBox cbSat = new JCheckBox("Saturday");
-		JCheckBox cbSun = new JCheckBox("Sunday");
-
 		JPanel panelBox = new JPanel(new GridLayout(7, 1));
-		panelBox.add(cbMon);
-		panelBox.add(cbTue);
-		panelBox.add(cbWed);
-		panelBox.add(cbThu);
-		panelBox.add(cbFri);
-		panelBox.add(cbSat);
-		panelBox.add(cbSun);
 		panelBox.setBorder(BorderFactory.createTitledBorder("Lesson days"));
+		for (DayOfWeek dow : DayOfWeek.values())
+			panelBox.add(new JCheckBox(dow.name().toLowerCase()));
 
 		JButton btnClear = new JButton("Clear data");
 		btnClear.setMnemonic(KeyEvent.VK_C);
@@ -139,8 +126,9 @@ public class GUI {
 					public String valueToString(Object value) throws ParseException {
 						if (value == null)
 							return "";
-						LocalDate date = ((Calendar) value).getTime().toInstant().atZone(ZoneId.systemDefault())
-								.toLocalDate();
+						LocalDate date = ((Calendar) value).getTime()
+														.toInstant().atZone(ZoneId.systemDefault())
+														.toLocalDate();
 						return dateFormatter.format(date);
 					}
 				});
@@ -164,10 +152,7 @@ public class GUI {
 			@Override
 			public TableCellRenderer getCellRenderer(int arg0, int arg1) {
 				renderRight.setHorizontalAlignment(SwingConstants.RIGHT);
-				if (arg0 % 2 == 0)
-					renderRight.setBackground(EVEN_ROW_COLOR);
-				else
-					renderRight.setBackground(ODD_ROW_COLOR);
+				renderRight.setBackground((arg0 % 2 == 0) ? EVEN_ROW_COLOR : ODD_ROW_COLOR);
 				return renderRight;
 			}
 		};
@@ -195,9 +180,10 @@ public class GUI {
 		dlgScheduling.setModalityType(Dialog.ModalityType.MODELESS);
 
 		Consumer<ActionEvent> inputVerifier = (event) -> {
-			if ((!cbMon.isSelected() && !cbTue.isSelected() && !cbWed.isSelected() && !cbThu.isSelected() &&
-					!cbFri.isSelected() && !cbSat.isSelected() && !cbSun.isSelected())
-					|| (datePicker.getModel().getValue() == null)
+			boolean anyChecked = Arrays.stream(panelBox.getComponents())
+					.map(c -> ((JCheckBox) c).isSelected())
+					.reduce(false, (a, b) -> a || b);
+			if (!anyChecked || (datePicker.getModel().getValue() == null)
 					|| (cbxBeginHour.getSelectedItem() == null)
 					|| (cbxEndHour.getSelectedItem() == null))
 				btnGenerate.setEnabled(false);
@@ -209,26 +195,16 @@ public class GUI {
 				btnSave.setEnabled(false);
 		};
 
-		cbMon.addActionListener(event -> inputVerifier.accept(event));
-		cbTue.addActionListener(event -> inputVerifier.accept(event));
-		cbWed.addActionListener(event -> inputVerifier.accept(event));
-		cbThu.addActionListener(event -> inputVerifier.accept(event));
-		cbFri.addActionListener(event -> inputVerifier.accept(event));
-		cbSat.addActionListener(event -> inputVerifier.accept(event));
-		cbSun.addActionListener(event -> inputVerifier.accept(event));
+		for (Component cb : panelBox.getComponents())
+			((JCheckBox) cb).addActionListener(event -> inputVerifier.accept(event));
 
 		datePicker.addActionListener(event -> inputVerifier.accept(event));
 		cbxBeginHour.addActionListener(event -> inputVerifier.accept(event));
 		cbxEndHour.addActionListener(event -> inputVerifier.accept(event));
 
 		btnClear.addActionListener(event -> {
-			cbMon.setSelected(false);
-			cbTue.setSelected(false);
-			cbWed.setSelected(false);
-			cbThu.setSelected(false);
-			cbFri.setSelected(false);
-			cbSat.setSelected(false);
-			cbSun.setSelected(false);
+			for (Component cb : panelBox.getComponents())
+				((JCheckBox) cb).setSelected(false);
 			LocalDate now = LocalDate.now();
 			datePicker.getModel().setDate(now.getYear(), now.getMonthValue() - 1, now.getDayOfMonth());
 			datePicker.getJFormattedTextField().setText("");
@@ -241,20 +217,9 @@ public class GUI {
 			EnteredParameters parameters = new EnteredParameters();
 
 			EnumSet<DayOfWeek> lessonDays = EnumSet.noneOf(DayOfWeek.class);
-			if (cbMon.isSelected())
-				lessonDays.add(DayOfWeek.MONDAY);
-			if (cbTue.isSelected())
-				lessonDays.add(DayOfWeek.TUESDAY);
-			if (cbWed.isSelected())
-				lessonDays.add(DayOfWeek.WEDNESDAY);
-			if (cbThu.isSelected())
-				lessonDays.add(DayOfWeek.THURSDAY);
-			if (cbFri.isSelected())
-				lessonDays.add(DayOfWeek.FRIDAY);
-			if (cbSat.isSelected())
-				lessonDays.add(DayOfWeek.SATURDAY);
-			if (cbSun.isSelected())
-				lessonDays.add(DayOfWeek.SUNDAY);
+			for (Component cb : panelBox.getComponents())
+				if (((JCheckBox) cb).isSelected())
+					lessonDays.add(DayOfWeek.valueOf(((JCheckBox) cb).getActionCommand().toUpperCase()));
 			parameters.setLessonDays(lessonDays);
 
 			UtilDateModel dateModel = (UtilDateModel) datePicker.getModel();
@@ -264,7 +229,7 @@ public class GUI {
 			parameters.setEndTime(LocalTime.parse(cbxEndHour.getSelectedItem().toString(), timeFormatter));
 			parameters.setHoursNumber((Integer) spiNumberHours.getValue());
 
-			if (parameters.getBeginTime().isAfter(parameters.getEndTime())) {
+			if (!parameters.getBeginTime().isBefore(parameters.getEndTime())) {
 				JOptionPane.showMessageDialog(frame, "End time is set before begin time!", "Error",
 						JOptionPane.ERROR_MESSAGE);
 				return;
@@ -279,8 +244,8 @@ public class GUI {
 					app.generateSchedule(false);
 					app.generateExcel();
 					Schedule schedule = app.getSchedule();
+					
 					Object[][] data = new Object[schedule.getLessons().size()][5];
-
 					int row = 0;
 					for (Lesson lesson : schedule.getLessons()) {
 						data[row][0] = row + 1;
@@ -313,7 +278,7 @@ public class GUI {
 				return;
 			String newName = chooser.getSelectedFile().toString();
 
-			app.saveExcelToFile(newName,false);
+			app.saveExcelToFile(newName, false);
 		});
 
 		btnEnd.addActionListener(event -> SwingUtilities.getWindowAncestor(btnEnd).dispose());
