@@ -1,4 +1,5 @@
 # Project task
+![Screenshot](Scheduler_screenshot.png)
 This is task description for project part of your IT-Academy course.
 ## Getting Started
 While completing this task you will learn:
